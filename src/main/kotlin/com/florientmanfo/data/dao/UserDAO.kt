@@ -1,0 +1,28 @@
+package com.florientmanfo.com.florientmanfo.data.dao
+
+import com.florientmanfo.com.florientmanfo.data.table.Users
+import com.florientmanfo.com.florientmanfo.models.user.UserModel
+import com.florientmanfo.com.florientmanfo.utils.toLong
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.id.EntityID
+
+class UserDAO(id: EntityID<String>) : Entity<String>(id) {
+
+    companion object : EntityClass<String, UserDAO>(Users)
+
+    var name by Users.name
+    var email by Users.email
+    var password by Users.password
+    var createdAt by Users.createdAt
+    var updatedAt by Users.updatedAt
+
+    fun toModel(): UserModel {
+        return UserModel(
+            name,
+            email,
+            createdAt.toLong(),
+            updatedAt.toLong()
+        )
+    }
+}
