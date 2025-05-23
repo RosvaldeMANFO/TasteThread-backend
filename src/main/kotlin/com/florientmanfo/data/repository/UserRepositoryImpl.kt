@@ -2,7 +2,7 @@ package com.florientmanfo.com.florientmanfo.data.repository
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import com.florientmanfo.com.florientmanfo.data.dao.UserDAO
+import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
@@ -19,7 +19,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
 
     override suspend fun register(dto: RegisterDTO): Result<UserModel> = suspendTransaction {
         try {
-            val user = UserDAO.new(IDGenerator.generate(IDSuffix.USER)) {
+            val user = UsersEntity.new(IDGenerator.generate(IDSuffix.USER)) {
                 email = dto.email
                 password = Password.hash(dto.password)
                 name = dto.username
@@ -34,9 +34,9 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
 
     override suspend fun login(dto: LoginDTO): Result<String> = suspendTransaction {
         try {
-            val userDAO = UserDAO.find { Users.email eq dto.email }.firstOrNull()
-            if (userDAO != null && Password.verify(dto.password, userDAO.password)) {
-                Result.success(generateToken(userDAO.id.value))
+            val entity = UsersEntity.find { Users.email eq dto.email }.firstOrNull()
+            if (entity != null && Password.verify(dto.password, entity.password)) {
+                Result.success(generateToken(entity.id.value))
             } else {
                 Result.failure(Exception("Invalid credentials"))
             }

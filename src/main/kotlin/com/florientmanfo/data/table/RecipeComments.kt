@@ -11,6 +11,5 @@ object RecipeComments: IdTable<String>("recipe_comments") {
     val authorId = varchar("author_id", 255).references(Users.id)
     val content = text("content")
     val createdAt = datetime("created_at")
-    val updatedAt = datetime("updated_at")
     override val primaryKey = PrimaryKey(id)
 }

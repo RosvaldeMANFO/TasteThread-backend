@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.data.dao
+package com.florientmanfo.com.florientmanfo.data.entity
 
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
@@ -7,9 +7,9 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class UserDAO(id: EntityID<String>) : Entity<String>(id) {
+class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
 
-    companion object : EntityClass<String, UserDAO>(Users)
+    companion object : EntityClass<String, UsersEntity>(Users)
 
     var name by Users.name
     var email by Users.email

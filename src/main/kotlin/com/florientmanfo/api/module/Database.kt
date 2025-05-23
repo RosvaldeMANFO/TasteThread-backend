@@ -4,7 +4,7 @@ import com.florientmanfo.com.florientmanfo.data.table.Ingredients
 import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.data.table.Users
-import com.florientmanfo.com.florientmanfo.data.tables.RecipeLikes
+import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
