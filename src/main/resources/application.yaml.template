@@ -1,0 +1,18 @@
+ktor:
+    application:
+        modules:
+            - com.florientmanfo.ApplicationKt.module
+    deployment:
+        port: 8080
+
+    database:
+        driver:
+        url:
+        user:
+        password:
+        maximumPoolSize: 10
+    jwt:
+        secret:
+
+    custom-config:
+        image-upload-dir:
