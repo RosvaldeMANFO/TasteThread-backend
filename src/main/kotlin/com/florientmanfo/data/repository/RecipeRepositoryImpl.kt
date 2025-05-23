@@ -32,7 +32,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                 description = recipe.description
                 imageUrl = recipe.imageUrl
                 instructions = recipe.instructions.joinToString("\n")
-                author = UsersEntity.findById(authorId) ?: throw Exception("Author not found")
+                this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }
@@ -72,9 +72,9 @@ class RecipeRepositoryImpl : RecipeRepository {
     }
 
 
-    override suspend fun updateRecipe(authorId: String, recipe: RecipeDTO): Result<RecipeModel> = suspendTransaction {
+    override suspend fun updateRecipe(recipeId: String, authorId: String, recipe: RecipeDTO): Result<RecipeModel> = suspendTransaction {
         try {
-            val existingRecipe = recipe.id?.let { RecipesEntity.findById(it) }
+            val existingRecipe = RecipesEntity.findById(recipeId)
                 ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
             if (existingRecipe.author.id.value != authorId) {
@@ -93,7 +93,7 @@ class RecipeRepositoryImpl : RecipeRepository {
                     name = ingredient.name
                     quantity = ingredient.quantity
                     unit = ingredient.unit
-                    recipeId = existingRecipe.id.value
+                    this.recipeId = recipeId
                     createdAt = LocalDateTime.now()
                     updatedAt = LocalDateTime.now()
                 }
@@ -106,7 +106,7 @@ class RecipeRepositoryImpl : RecipeRepository {
     }
 
 
-    override suspend fun findRecipeById(authorId: String, query: String): Result<List<RecipeModel>> =
+    override suspend fun findRecipeByQuery(query: String): Result<List<RecipeModel>> =
         suspendTransaction {
             try {
                 val recipes = RecipesEntity.find {

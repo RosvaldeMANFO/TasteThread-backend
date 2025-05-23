@@ -13,6 +13,7 @@ import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.Password
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
+import java.time.LocalDateTime
 import java.util.*
 
 class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository {
@@ -23,8 +24,8 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 email = dto.email
                 password = Password.hash(dto.password)
                 name = dto.username
-                createdAt = java.time.LocalDateTime.now()
-                updatedAt = java.time.LocalDateTime.now()
+                createdAt = LocalDateTime.now()
+                updatedAt = LocalDateTime.now()
             }.toModel()
             Result.success(user)
         } catch (e: Exception) {

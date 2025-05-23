@@ -17,7 +17,8 @@ class RecipesEntity(id: EntityID<String>): Entity<String>(id) {
     var description by Recipes.description
     var imageUrl by Recipes.imageUrl
     var instructions by Recipes.instructions
-    var author by UsersEntity referencedOn Recipes.authorId
+    val author by UsersEntity referencedOn Recipes.authorId
+    var authorId by Recipes.authorId
     var createdAt by Recipes.createdAt
     var updatedAt by Recipes.updatedAt
     val ingredients by IngredientsEntity.referrersOn(Ingredients.recipeId, true)

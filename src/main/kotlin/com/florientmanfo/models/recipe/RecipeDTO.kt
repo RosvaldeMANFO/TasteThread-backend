@@ -4,7 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RecipeDTO(
-    val id: String? = null,
     val name: String,
     val description: String,
     val imageUrl: String? = null,

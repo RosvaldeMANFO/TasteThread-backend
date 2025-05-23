@@ -1,5 +1,6 @@
 package com.florientmanfo.com.florientmanfo.api.routing
 
+import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
 import com.florientmanfo.com.florientmanfo.services.user.UserService
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,19 +11,23 @@ import org.koin.ktor.ext.inject
 
 fun Application.configureRouting() {
     val userService: UserService by inject()
+    val recipeService: RecipeService by inject()
 
     routing {
         authRouting(userService)
         userRouting(userService)
+        recipeRouting(recipeService)
         authenticate("auth-jwt") {
             get("/") {
                 call.respondText("Hello cooker!")
             }
+            protectedRecipeRouting(recipeService)
         }
     }
 }
 
-fun retrieveAuthorId(call: ApplicationCall): String? {
+fun retrieveAuthorId(call: ApplicationCall): String {
     val principal = call.principal<JWTPrincipal>()
-    return principal?.payload?.getClaim("userId")?.asString()
+    return principal?.payload?.getClaim("userId")?.asString() ?:
+    throw IllegalArgumentException("Missing userId")
 }
