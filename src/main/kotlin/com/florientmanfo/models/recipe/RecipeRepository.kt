@@ -8,4 +8,5 @@ interface RecipeRepository {
     suspend fun findRecipeById(authorId: String, query: String): Result<List<RecipeModel>>
     suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit>
     suspend fun commentRecipe(userId: String, commentDTO: RecipeCommentDTO): Result<Unit>
+    suspend fun getMyRecipes(userId: String): Result<List<RecipeModel>>
 }

@@ -11,9 +11,11 @@ import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.lowerCase
+import org.jetbrains.exposed.sql.or
 import java.time.LocalDateTime
 
-class RecipeRepositoryImpl: RecipeRepository {
+class RecipeRepositoryImpl : RecipeRepository {
     override suspend fun getAllRecipes(): Result<List<RecipeModel>> = suspendTransaction {
         try {
             val recipes = RecipesEntity.all().map { it.toModel() }
@@ -55,7 +57,8 @@ class RecipeRepositoryImpl: RecipeRepository {
 
     override suspend fun deleteRecipe(authorId: String, id: String): Result<Unit> = suspendTransaction {
         try {
-            val recipe = RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+            val recipe =
+                RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
             if (recipe.author.id.value != authorId) {
                 return@suspendTransaction Result.failure(Exception("You are not authorized to delete this recipe"))
@@ -71,7 +74,8 @@ class RecipeRepositoryImpl: RecipeRepository {
 
     override suspend fun updateRecipe(authorId: String, recipe: RecipeDTO): Result<RecipeModel> = suspendTransaction {
         try {
-            val existingRecipe = recipe.id?.let { RecipesEntity.findById(it) } ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+            val existingRecipe = recipe.id?.let { RecipesEntity.findById(it) }
+                ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
             if (existingRecipe.author.id.value != authorId) {
                 return@suspendTransaction Result.failure(Exception("You are not authorized to update this recipe"))
@@ -102,24 +106,29 @@ class RecipeRepositoryImpl: RecipeRepository {
     }
 
 
-    override suspend fun findRecipeById(authorId: String, query: String): Result<List<RecipeModel>> = suspendTransaction {
-        try {
-            val recipes = RecipesEntity.find { Recipes.name like "%$query%" }
-                .map { it.toModel() }
+    override suspend fun findRecipeById(authorId: String, query: String): Result<List<RecipeModel>> =
+        suspendTransaction {
+            try {
+                val recipes = RecipesEntity.find {
+                    (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
+                            (Recipes.description.lowerCase() like "%${query.lowercase()}%")
+                }.map { it.toModel() }
 
-            Result.success(recipes)
-        } catch (e: Exception) {
-            Result.failure(e)
+                Result.success(recipes)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
-    }
 
 
     override suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> = suspendTransaction {
         try {
-            val recipe = RecipesEntity.findById(recipeId) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+            val recipe = RecipesEntity.findById(recipeId)
+                ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
-            val existingLike = RecipeLikesEntity.find { (RecipeLikes.userId eq userId) and (RecipeLikes.recipeId eq recipeId) }
-                .firstOrNull()
+            val existingLike =
+                RecipeLikesEntity.find { (RecipeLikes.userId eq userId) and (RecipeLikes.recipeId eq recipeId) }
+                    .firstOrNull()
 
             if (existingLike != null) {
                 existingLike.delete()
@@ -137,20 +146,32 @@ class RecipeRepositoryImpl: RecipeRepository {
         }
     }
 
+    override suspend fun commentRecipe(userId: String, commentDTO: RecipeCommentDTO): Result<Unit> =
+        suspendTransaction {
+            try {
+                RecipeCommentsEntity.new(IDGenerator.generate(IDSuffix.COMMENT)) {
+                    authorId = userId
+                    recipeId = commentDTO.recipeId
+                    content = commentDTO.content
+                    createdAt = LocalDateTime.now()
+                }
 
-    override suspend fun commentRecipe(userId: String, commentDTO: RecipeCommentDTO): Result<Unit> = suspendTransaction {
-        try {
-            RecipeCommentsEntity.new(IDGenerator.generate(IDSuffix.COMMENT)) {
-                authorId = userId
-                recipeId = commentDTO.recipeId
-                content = commentDTO.content
-                createdAt = LocalDateTime.now()
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
             }
+        }
 
-            Result.success(Unit)
+    override suspend fun getMyRecipes(userId: String): Result<List<RecipeModel>> {
+        return try {
+            suspendTransaction {
+                RecipesEntity.find { Recipes.authorId eq userId }
+                    .map { it.toModel() }
+            }.let { recipes ->
+                Result.success(recipes)
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-
 }
