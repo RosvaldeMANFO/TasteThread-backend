@@ -14,7 +14,10 @@ fun Route.userRouting(service: UserService) {
             val dto = call.receive<RegisterDTO>()
             try {
                 val result = service.register(dto)
-                val response = RequestResult.formatResult(result, HttpStatusCode.Created)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)

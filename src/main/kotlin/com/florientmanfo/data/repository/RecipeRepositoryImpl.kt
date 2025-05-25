@@ -32,33 +32,37 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         recipeImageFile: ByteArray?
     ): Result<RecipeModel> = suspendTransaction {
 
-        val id = IDGenerator.generate(IDSuffix.RECIPE)
-        val imageUrl = recipeImageFile?.let {
-            firebase.uploadFile(it, id)
-        }
+        try {
+            val id = IDGenerator.generate(IDSuffix.RECIPE)
+            val imageUrl = recipeImageFile?.let {
+                firebase.uploadFile(it, id)
+            }
 
-        val newRecipe = RecipesEntity.new(id) {
-            name = dto.name
-            description = dto.description
-            this.imageUrl = imageUrl
-            instructions = dto.instructions.joinToString("\n")
-            this.authorId = authorId
-            createdAt = LocalDateTime.now()
-            updatedAt = LocalDateTime.now()
-        }
-
-        dto.ingredients.forEach { ingredient ->
-            IngredientsEntity.new(IDGenerator.generate(IDSuffix.INGREDIENT)) {
-                name = ingredient.name
-                quantity = ingredient.quantity
-                unit = ingredient.unit
-                recipeId = newRecipe.id.value
+            val newRecipe = RecipesEntity.new(id) {
+                name = dto.name
+                description = dto.description
+                this.imageUrl = imageUrl
+                instructions = dto.instructions.joinToString("\n")
+                this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }
-        }
 
-        Result.success(newRecipe.toModel())
+            dto.ingredients.forEach { ingredient ->
+                IngredientsEntity.new(IDGenerator.generate(IDSuffix.INGREDIENT)) {
+                    name = ingredient.name
+                    quantity = ingredient.quantity
+                    unit = ingredient.unit
+                    recipeId = newRecipe.id.value
+                    createdAt = LocalDateTime.now()
+                    updatedAt = LocalDateTime.now()
+                }
+            }
+
+            Result.success(newRecipe.toModel())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun updateRecipe(
@@ -67,44 +71,56 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         dto: RecipeDTO,
         recipeImageFile: ByteArray?
     ): Result<RecipeModel> = suspendTransaction {
-        val existingRecipe = RecipesEntity.findById(recipeId)
-            ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+        try {
+            val existingRecipe = RecipesEntity.findById(recipeId)
+                ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
-        dto.imageUrl?.let {
-            existingRecipe.imageUrl = it
-        } ?: existingRecipe.imageUrl?.let {
-            firebase.deleteFile(existingRecipe.id.value)
-            existingRecipe.imageUrl = null
-        }
-
-        recipeImageFile?.let {
-            existingRecipe.imageUrl = firebase.uploadFile(it, recipeId)
-        }
-
-        existingRecipe.name = dto.name
-        existingRecipe.description = dto.description
-        existingRecipe.instructions = dto.instructions.joinToString("\n")
-        existingRecipe.updatedAt = LocalDateTime.now()
-
-        existingRecipe.ingredients.forEach { it.delete() }
-        dto.ingredients.forEach { ingredient ->
-            IngredientsEntity.new(IDGenerator.generate(IDSuffix.INGREDIENT)) {
-                name = ingredient.name
-                quantity = ingredient.quantity
-                unit = ingredient.unit
-                this.recipeId = recipeId
-                createdAt = LocalDateTime.now()
-                updatedAt = LocalDateTime.now()
+            if(existingRecipe.authorId != authorId) {
+                return@suspendTransaction Result.failure(Exception("Unauthorized access"))
             }
-        }
 
-        Result.success(existingRecipe.toModel())
+            dto.imageUrl?.let {
+                existingRecipe.imageUrl = it
+            } ?: existingRecipe.imageUrl?.let {
+                firebase.deleteFile(existingRecipe.id.value)
+                existingRecipe.imageUrl = null
+            }
+
+            recipeImageFile?.let {
+                existingRecipe.imageUrl = firebase.uploadFile(it, recipeId)
+            }
+
+            existingRecipe.name = dto.name
+            existingRecipe.description = dto.description
+            existingRecipe.instructions = dto.instructions.joinToString("\n")
+            existingRecipe.updatedAt = LocalDateTime.now()
+
+            existingRecipe.ingredients.forEach { it.delete() }
+            dto.ingredients.forEach { ingredient ->
+                IngredientsEntity.new(IDGenerator.generate(IDSuffix.INGREDIENT)) {
+                    name = ingredient.name
+                    quantity = ingredient.quantity
+                    unit = ingredient.unit
+                    this.recipeId = recipeId
+                    createdAt = LocalDateTime.now()
+                    updatedAt = LocalDateTime.now()
+                }
+            }
+
+            Result.success(existingRecipe.toModel())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun deleteRecipe(authorId: String, id: String): Result<Unit> = suspendTransaction {
         try {
             val recipe =
                 RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+
+            if (recipe.authorId != authorId) {
+                return@suspendTransaction Result.failure(Exception("Unauthorized access"))
+            }
 
             if (recipe.imageUrl != null) {
                 firebase.deleteFile(recipe.id.value)

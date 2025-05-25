@@ -14,5 +14,5 @@ ktor:
     jwt:
         secret:
 
-    custom-config:
-        image-upload-dir:
+    firebase:
+        bucket:

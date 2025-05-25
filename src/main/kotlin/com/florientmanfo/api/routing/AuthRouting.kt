@@ -9,17 +9,21 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.authRouting(service: UserService) {
-    route("/login"){
+    route("/login") {
         post {
-            val response = try {
+            try {
                 val dto = call.receive<LoginDTO>()
                 val result = service.login(dto)
-                RequestResult.formatResult(result, HttpStatusCode.OK)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
-                RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(response)
             }
-            call.respond(response)
         }
     }
 }

@@ -12,7 +12,10 @@ import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
-private suspend fun multipartRecipe(call: ApplicationCall, callBack: suspend (RecipeDTO, ByteArray?) -> Unit) {
+private suspend fun <T> multipartRecipe(
+    call: ApplicationCall,
+    callBack: suspend (RecipeDTO, ByteArray?) -> RequestResult<T>
+): RequestResult<T> {
     val multiPartData = call.receiveMultipart()
     var recipeImageFile: ByteArray? = null
     var dto: RecipeDTO? = null
@@ -24,18 +27,20 @@ private suspend fun multipartRecipe(call: ApplicationCall, callBack: suspend (Re
                     dto = Json.decodeFromString<RecipeDTO>(part.value)
                 }
             }
+
             is PartData.FileItem -> {
                 if (part.name == "image") {
                     recipeImageFile = part.streamProvider().readBytes()
                 }
             }
+
             else -> Unit
         }
         part.dispose()
     }
 
     dto?.let {
-        callBack(it, recipeImageFile)
+        return callBack(it, recipeImageFile)
     } ?: throw IllegalArgumentException("Missing recipe data")
 }
 
@@ -44,19 +49,23 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         post {
             try {
                 val authorId = retrieveAuthorId(call)
-                if(call.request.isMultipart()){
+                val response = if (call.request.isMultipart()) {
                     multipartRecipe(call) { dto, image ->
                         val result = service.createRecipe(authorId, dto, image)
-                        val response = RequestResult.formatResult(result, HttpStatusCode.Created)
-                        call.respond(response)
+                        result.fold(
+                            onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                        )
                     }
                 } else {
                     val dto = call.receive<RecipeDTO>()
                     val result = service.createRecipe(authorId, dto)
-                    val response = RequestResult.formatResult(result, HttpStatusCode.Created)
-                    call.respond(response)
+                    result.fold(
+                        onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    )
                 }
-
+                call.respond(response)
             } catch (e: Exception) {
                 e.printStackTrace()
                 val result = Result.failure<String>(e)
@@ -69,18 +78,23 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             try {
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
                 val authorId = retrieveAuthorId(call)
-                if(call.request.isMultipart()){
+                val response = if (call.request.isMultipart()) {
                     multipartRecipe(call) { dto, image ->
                         val result = service.updateRecipe(id, authorId, dto, image)
-                        val response = RequestResult.formatResult(result, HttpStatusCode.OK)
-                        call.respond(response)
+                        result.fold(
+                            onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                        )
                     }
                 } else {
                     val dto = call.receive<RecipeDTO>()
                     val result = service.updateRecipe(id, authorId, dto)
-                    val response = RequestResult.formatResult(result, HttpStatusCode.OK)
-                    call.respond(response)
+                    result.fold(
+                        onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    )
                 }
+                call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
@@ -92,9 +106,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             try {
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
                 val authorId = retrieveAuthorId(call)
-
                 val result = service.deleteRecipe(authorId, id)
-                val response = RequestResult.formatResult(result, HttpStatusCode.NoContent)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -108,7 +124,10 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val recipeId = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
                 val userId = retrieveAuthorId(call)
                 val result = service.likeRecipe(userId, recipeId)
-                val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -122,7 +141,10 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val commentDTO = call.receive<RecipeCommentDTO>()
                 val userId = retrieveAuthorId(call)
                 val result = service.commentRecipe(userId, commentDTO)
-                val response = RequestResult.formatResult(result, HttpStatusCode.Created)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -135,7 +157,10 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             try {
                 val userId = retrieveAuthorId(call)
                 val result = service.getMyRecipes(userId)
-                val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -145,12 +170,16 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         }
     }
 }
+
 fun Route.recipeRouting(service: RecipeService) {
     route("/recipes") {
         get {
             try {
                 val result = service.getAllRecipes()
-                val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<List<String>>(e)
@@ -161,9 +190,13 @@ fun Route.recipeRouting(service: RecipeService) {
 
         get("/search") {
             try {
-                val query = call.request.queryParameters["query"] ?: throw IllegalArgumentException("Missing query parameter")
+                val query = call.request.queryParameters["query"]
+                    ?: throw IllegalArgumentException("Missing query parameter")
                 val result = service.findRecipeByQuery(query)
-                val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
