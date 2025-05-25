@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.hikaricp)
     implementation(libs.postgresql.driver)
     implementation(libs.mindrot.jbcrypt)
+    implementation(libs.firebase.admin)
 
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)

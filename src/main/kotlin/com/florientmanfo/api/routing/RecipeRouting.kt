@@ -5,20 +5,82 @@ import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
 import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
 import com.florientmanfo.com.florientmanfo.utils.RequestResult
 import io.ktor.http.*
+import io.ktor.http.content.*
+import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
+import kotlinx.serialization.json.Json
+
+private suspend fun multipartRecipe(call: ApplicationCall, callBack: suspend (RecipeDTO, ByteArray?) -> Unit) {
+    val multiPartData = call.receiveMultipart()
+    var recipeImageFile: ByteArray? = null
+    var dto: RecipeDTO? = null
+
+    multiPartData.forEachPart { part ->
+        when (part) {
+            is PartData.FormItem -> {
+                if (part.name == "recipe") {
+                    dto = Json.decodeFromString<RecipeDTO>(part.value)
+                }
+            }
+            is PartData.FileItem -> {
+                if (part.name == "image") {
+                    recipeImageFile = part.streamProvider().readBytes()
+                }
+            }
+            else -> Unit
+        }
+        part.dispose()
+    }
+
+    dto?.let {
+        callBack(it, recipeImageFile)
+    } ?: throw IllegalArgumentException("Missing recipe data")
+}
 
 fun Route.protectedRecipeRouting(service: RecipeService) {
     route("/recipes") {
         post {
             try {
-                val dto = call.receive<RecipeDTO>()
-                val authorId  = retrieveAuthorId(call)
+                val authorId = retrieveAuthorId(call)
+                if(call.request.isMultipart()){
+                    multipartRecipe(call) { dto, image ->
+                        val result = service.createRecipe(authorId, dto, image)
+                        val response = RequestResult.formatResult(result, HttpStatusCode.Created)
+                        call.respond(response)
+                    }
+                } else {
+                    val dto = call.receive<RecipeDTO>()
+                    val result = service.createRecipe(authorId, dto)
+                    val response = RequestResult.formatResult(result, HttpStatusCode.Created)
+                    call.respond(response)
+                }
 
-                val result = service.createRecipe(authorId, dto)
-                val response = RequestResult.formatResult(result, HttpStatusCode.Created)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
                 call.respond(response)
+            }
+        }
+
+        put("/{id}") {
+            try {
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
+                val authorId = retrieveAuthorId(call)
+                if(call.request.isMultipart()){
+                    multipartRecipe(call) { dto, image ->
+                        val result = service.updateRecipe(id, authorId, dto, image)
+                        val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                        call.respond(response)
+                    }
+                } else {
+                    val dto = call.receive<RecipeDTO>()
+                    val result = service.updateRecipe(id, authorId, dto)
+                    val response = RequestResult.formatResult(result, HttpStatusCode.OK)
+                    call.respond(response)
+                }
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
@@ -33,21 +95,6 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
 
                 val result = service.deleteRecipe(authorId, id)
                 val response = RequestResult.formatResult(result, HttpStatusCode.NoContent)
-                call.respond(response)
-            } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
-            }
-        }
-
-        put("/{id}") {
-            try {
-                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
-                val dto = call.receive<RecipeDTO>()
-                val authorId = retrieveAuthorId(call)
-                val result = service.updateRecipe(id, authorId, dto)
-                val response = RequestResult.formatResult(result, HttpStatusCode.OK)
                 call.respond(response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)

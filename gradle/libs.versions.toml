@@ -8,6 +8,7 @@ hikaricp-version = "5.0.1"
 postgres-version = "42.6.0"
 mindrot-jbcrypt-version = "0.4"
 koin-version = "3.5.0"
+firebase-version = "9.4.3"
 
 
 [libraries]
@@ -27,6 +28,7 @@ exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", versio
 mindrot-jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "mindrot-jbcrypt-version"}
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp-version" }
 postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-version"}
 
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor-version" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }

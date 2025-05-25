@@ -10,24 +10,24 @@ class RecipeService(
         return repository.getAllRecipes()
     }
 
-    suspend fun createRecipe(authorId: String, recipe: RecipeDTO): Result<RecipeModel> {
+    suspend fun createRecipe(authorId: String, recipe: RecipeDTO, image: ByteArray? = null): Result<RecipeModel> {
         val result = validation.validateRecipe(recipe)
         if (!result.isValid) {
             throw Exception(result.message)
         }
-        return repository.createRecipe(authorId, recipe)
+        return repository.createRecipe(authorId, recipe, image)
+    }
+
+    suspend fun updateRecipe(recipeId: String, authorId: String, recipe: RecipeDTO, image: ByteArray? = null): Result<RecipeModel> {
+        val result = validation.validateRecipe(recipe)
+        if (!result.isValid) {
+            throw Exception(result.message)
+        }
+        return repository.updateRecipe(recipeId, authorId, recipe, image)
     }
 
     suspend fun deleteRecipe(authorId: String, id: String): Result<Unit> {
         return repository.deleteRecipe(authorId, id)
-    }
-
-    suspend fun updateRecipe(recipeId: String, authorId: String, recipe: RecipeDTO): Result<RecipeModel> {
-        val result = validation.validateRecipe(recipe)
-        if (!result.isValid) {
-            throw Exception(result.message)
-        }
-        return repository.updateRecipe(recipeId, authorId, recipe)
     }
 
     suspend fun findRecipeByQuery(query: String): Result<List<RecipeModel>> {
