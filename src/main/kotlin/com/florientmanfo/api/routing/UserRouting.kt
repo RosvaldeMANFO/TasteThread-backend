@@ -9,7 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
 fun Route.userRouting(service: UserService) {
-    route("/user") {
+    route("/users") {
         post("/register") {
             val dto = call.receive<RegisterDTO>()
             try {
