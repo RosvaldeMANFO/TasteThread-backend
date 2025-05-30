@@ -18,11 +18,11 @@ fun Route.authRouting(service: UserService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
     }

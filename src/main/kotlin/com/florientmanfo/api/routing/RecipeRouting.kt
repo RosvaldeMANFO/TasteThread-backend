@@ -39,8 +39,8 @@ private suspend fun <T> multipartRecipe(
         part.dispose()
     }
 
-    dto?.let {
-        return callBack(it, recipeImageFile)
+    return dto?.let {
+        callBack(it, recipeImageFile)
     } ?: throw IllegalArgumentException("Missing recipe data")
 }
 
@@ -65,12 +65,12 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                     )
                 }
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 e.printStackTrace()
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -94,11 +94,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                     )
                 }
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -111,11 +111,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -128,11 +128,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -145,11 +145,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -161,11 +161,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
     }
@@ -180,11 +180,11 @@ fun Route.recipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<List<String>>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
 
@@ -197,11 +197,11 @@ fun Route.recipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(response)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
     }
