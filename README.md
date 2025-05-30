@@ -32,6 +32,7 @@ This API allows you to manage recipes through CRUD operations (Create, Read, Upd
 - An environment set up for running Kotlin/Java applications.
 - A configuration file (`application.yaml`).
 - Postgresql with a database, you can run it from Docker.
+- Firebase project with a storage feature to upload an image.
 
 ---
 
@@ -48,6 +49,9 @@ This API allows you to manage recipes through CRUD operations (Create, Read, Upd
 2. **Configure the application**:
     - Rename the `application.yaml.template` file located in the `resources` directory to `application.yaml`.
     - Fill in the necessary fields (e.g., database information, JWT keys, etc.).
+    - Add the service-account-key.json of your firebase project from your GCP account to the ``resources`` folder   
+   
+![img.png](img.png)
 
 3. **Build the project**:
       ```bash
@@ -72,7 +76,7 @@ This API allows you to manage recipes through CRUD operations (Create, Read, Upd
 
 ### Testing Endpoints
 A Postman collection is available to test the API endpoints. Use the following link to access it:
-[Postman Collection](https://projetweb-7687.postman.co/workspace/Projet_web-Workspace~0174ddea-700e-43df-ab11-e315e9e69942/collection/19898948-fa9a273f-bed0-4d1d-a319-d66a1a4530ce?action=share&creator=19898948)
+[Postman Collection](https://www.postman.com/projetweb-7687/workspace/open-api/request/19898948-1c60b973-99d4-4e40-b61d-ade75d4eb64b?action=share&creator=19898948&ctx=documentation)
 
 ---
 
