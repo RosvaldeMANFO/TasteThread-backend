@@ -9,6 +9,7 @@ postgres-version = "42.6.0"
 mindrot-jbcrypt-version = "0.4"
 koin-version = "3.5.0"
 firebase-version = "9.4.3"
+postgres-socket-factory-version = "1.15.1"
 
 
 [libraries]
@@ -33,6 +34,7 @@ firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = 
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor-version" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin-version" }
+postgres-socket-factory = { module = "com.google.cloud.sql:postgres-socket-factory", version.ref = "postgres-socket-factory-version"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }

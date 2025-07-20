@@ -1,0 +1,73 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ vars.PROJECT_ID }}
+  SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+  REGION: ${{ vars.REGION }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: Authenticate with Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Create service account key file
+        run: |
+          mkdir -p src/main/resources
+          echo '${{ secrets.SERVICE_ACCOUNT_KEY }}' > src/main/resources/service-account-key.json
+
+      - name: Create application config file
+        run: |
+          mkdir -p src/main/resources
+          echo '${{ vars.APPLICATION_CONFIG }}' > src/main/resources/application.yaml
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Build and Push Docker image
+        run: |
+          gcloud auth configure-docker europe-west1-docker.pkg.dev
+          docker build -t europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/app:${{ github.sha }} .
+          docker push europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/app:${{ github.sha }}
+
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ vars.SERVICE_NAME }}
+          region: ${{ vars.REGION }}
+          image: europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}/app:${{ github.sha }}
+          env_vars: |
+            CLOUD_SQL_CONNECTION_NAME=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
+            DATABASE_USER=${{ secrets.DATABASE_USER }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            FIREBASE_BUCKET=${{ vars.FIREBASE_BUCKET }}

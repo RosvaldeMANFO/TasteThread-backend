@@ -35,5 +35,5 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/application.yaml
-src/main/resources/service-account-key.json
+src/main/resources/*.yaml
+src/main/resources/*.json

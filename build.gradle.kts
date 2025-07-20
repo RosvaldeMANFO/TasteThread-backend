@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.mindrot.jbcrypt)
     implementation(libs.firebase.admin)
 
+    implementation(libs.postgres.socket.factory)
+
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
