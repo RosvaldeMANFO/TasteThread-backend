@@ -1,4 +1,5 @@
 ktor:
+    environment: "dev"
     application:
         modules:
             - com.florientmanfo.ApplicationKt.module
