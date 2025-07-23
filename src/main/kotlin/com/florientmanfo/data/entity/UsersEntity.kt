@@ -14,6 +14,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
     var name by Users.name
     var email by Users.email
     var password by Users.password
+    var activated by Users.activated
     var createdAt by Users.createdAt
     var updatedAt by Users.updatedAt
 
@@ -21,6 +22,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
         return UserModel(
             name,
             email,
+            activated,
             createdAt.toLong(),
             updatedAt.toLong()
         )

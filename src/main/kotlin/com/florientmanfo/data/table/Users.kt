@@ -9,6 +9,7 @@ object Users: IdTable<String>("users") {
     val name = varchar("name", 255)
     val email = varchar("email", 255).uniqueIndex()
     val password = varchar("password", 255)
+    val activated = bool("activated").default(false)
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     override val primaryKey = PrimaryKey(id)

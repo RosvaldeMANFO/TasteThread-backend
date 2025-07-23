@@ -24,6 +24,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 email = dto.email
                 password = Password.hash(dto.password)
                 name = dto.username
+                activated = true
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }.toModel()

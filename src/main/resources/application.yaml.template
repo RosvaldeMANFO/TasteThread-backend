@@ -8,10 +8,12 @@ ktor:
 
     database:
         driver:
+        connectionName: ""
         url:
         user:
         password:
         maximumPoolSize: 10
+        generateMigrationFile: false
     jwt:
         secret:
 

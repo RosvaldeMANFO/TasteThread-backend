@@ -37,6 +37,7 @@ dependencies {
     implementation(libs.firebase.admin)
 
     implementation(libs.postgres.socket.factory)
+    implementation(libs.flywaydb)
 
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)

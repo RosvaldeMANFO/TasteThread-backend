@@ -17,11 +17,14 @@ class UserService(
         return repository.login(dto)
     }
 
-    suspend fun register(dto:RegisterDTO): Result<UserModel> {
+    suspend fun register(dto:RegisterDTO): Result<String> {
         val result = validation.validateCredential(dto.email, dto.password)
         if(result.isValid.not()){
             throw Exception(result.message)
         }
-        return repository.register(dto)
+        return repository.register(dto).let {
+            // TODO("Send email for account activation")
+            return@let Result.success("Check your email for account activation")
+        }
     }
 }
