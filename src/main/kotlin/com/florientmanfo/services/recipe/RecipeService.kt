@@ -6,8 +6,8 @@ class RecipeService(
     private val repository: RecipeRepository,
     private val validation: RecipeValidationService
 ) {
-    suspend fun getAllRecipes(): Result<List<RecipeModel>> {
-        return repository.getAllRecipes()
+    suspend fun getAllRecipes(limit: Int, offset: Long): Result<List<RecipeModel>> {
+        return repository.getAllRecipes(limit, offset)
     }
 
     suspend fun createRecipe(authorId: String, recipe: RecipeDTO, image: ByteArray? = null): Result<RecipeModel> {
@@ -30,11 +30,11 @@ class RecipeService(
         return repository.deleteRecipe(authorId, id)
     }
 
-    suspend fun findRecipeByQuery(query: String): Result<List<RecipeModel>> {
+    suspend fun findRecipeByQuery(query: String, limit: Int, offset: Long): Result<List<RecipeModel>> {
         if (query.isBlank()) {
             throw Exception("The query cannot be empty.")
         }
-        return repository.findRecipeByQuery(query)
+        return repository.findRecipeByQuery(query, limit, offset)
     }
 
     suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> {
@@ -49,7 +49,7 @@ class RecipeService(
         return repository.commentRecipe(userId, commentDTO)
     }
 
-    suspend fun getMyRecipes(userId: String): Result<List<RecipeModel>> {
-        return repository.getMyRecipes(userId)
+    suspend fun getMyRecipes(userId: String, limit: Int, offset: Long): Result<List<RecipeModel>> {
+        return repository.getMyRecipes(userId, limit, offset)
     }
 }

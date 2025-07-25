@@ -15,11 +15,14 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import java.time.LocalDateTime
+import kotlin.or
 
 class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRepository {
-    override suspend fun getAllRecipes(): Result<List<RecipeModel>> = suspendTransaction {
+    override suspend fun getAllRecipes(limit: Int, offset: Long): Result<List<RecipeModel>> = suspendTransaction {
         try {
-            val recipes = RecipesEntity.all().map { it.toModel() }
+            val recipes = RecipesEntity.all()
+                .limit(limit).offset(offset)
+                .map { it.toModel() }
             Result.success(recipes)
         } catch (e: Exception) {
             Result.failure(e)
@@ -75,7 +78,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             val existingRecipe = RecipesEntity.findById(recipeId)
                 ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
-            if(existingRecipe.authorId != authorId) {
+            if (existingRecipe.authorId != authorId) {
                 return@suspendTransaction Result.failure(Exception("Unauthorized access"))
             }
 
@@ -133,14 +136,15 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         }
     }
 
-    override suspend fun findRecipeByQuery(query: String): Result<List<RecipeModel>> =
+    override suspend fun findRecipeByQuery(query: String, limit: Int, offset: Long): Result<List<RecipeModel>> =
         suspendTransaction {
             try {
                 val recipes = RecipesEntity.find {
                     (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
                             (Recipes.description.lowerCase() like "%${query.lowercase()}%")
-                }.map { it.toModel() }
-
+                }
+                    .limit(limit).offset(offset)
+                    .map { it.toModel() }
                 Result.success(recipes)
             } catch (e: Exception) {
                 Result.failure(e)
@@ -189,10 +193,11 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             }
         }
 
-    override suspend fun getMyRecipes(userId: String): Result<List<RecipeModel>> {
+    override suspend fun getMyRecipes(userId: String, limit: Int, offset: Long): Result<List<RecipeModel>> {
         return try {
             suspendTransaction {
                 RecipesEntity.find { Recipes.authorId eq userId }
+                    .limit(limit).offset(offset)
                     .map { it.toModel() }
             }.let { recipes ->
                 Result.success(recipes)

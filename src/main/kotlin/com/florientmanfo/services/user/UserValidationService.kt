@@ -14,7 +14,7 @@ class UserValidationService {
         } else if (!passwordRegex.matches(password)) {
             return ValidationResult(
                 false,
-                "Password must contain at least one letter and one number with a length of at least 8 characters"
+                "Password must contain letters, numbers, and have a length of at least 8 characters"
             )
         }
         return ValidationResult(true)
