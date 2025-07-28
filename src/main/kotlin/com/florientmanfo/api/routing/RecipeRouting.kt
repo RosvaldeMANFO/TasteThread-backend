@@ -119,9 +119,9 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             }
         }
 
-        post("/{id}/like") {
+        post("/like") {
             try {
-                val recipeId = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
+                val recipeId = call.receive<String>()
                 val userId = retrieveAuthorId(call)
                 val result = service.likeRecipe(userId, recipeId)
                 val response = result.fold(
@@ -136,7 +136,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             }
         }
 
-        post("/{id}/comments") {
+        post("/comments") {
             try {
                 val commentDTO = call.receive<RecipeCommentDTO>()
                 val userId = retrieveAuthorId(call)
