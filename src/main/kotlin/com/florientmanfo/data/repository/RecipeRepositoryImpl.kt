@@ -1,6 +1,9 @@
 package com.florientmanfo.com.florientmanfo.data.repository
 
-import com.florientmanfo.com.florientmanfo.data.entity.*
+import com.florientmanfo.com.florientmanfo.data.entity.IngredientsEntity
+import com.florientmanfo.com.florientmanfo.data.entity.RecipeCommentsEntity
+import com.florientmanfo.com.florientmanfo.data.entity.RecipeLikesEntity
+import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
@@ -15,14 +18,13 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
 import java.time.LocalDateTime
-import kotlin.or
 
 class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRepository {
     override suspend fun getAllRecipes(limit: Int, offset: Long): Result<List<RecipeModel>> = suspendTransaction {
         try {
             val recipes = RecipesEntity.all()
                 .limit(limit).offset(offset)
-                .map { it.toModel() }
+                .map { it.toModel() }.filter { it.approved }
             Result.success(recipes)
         } catch (e: Exception) {
             Result.failure(e)
@@ -46,6 +48,12 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 description = dto.description
                 this.imageUrl = imageUrl
                 instructions = dto.instructions.joinToString("\n")
+                mealType = dto.mealType.toDisplayName()
+                dietaryRestriction = dto.dietaryRestrictions.joinToString(",") { it.toDisplayName() }
+                country = dto.country.toDisplayName()
+                cookTime = dto.cookTime
+                servings = dto.servings
+                approved = true
                 this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
@@ -97,6 +105,13 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             existingRecipe.description = dto.description
             existingRecipe.instructions = dto.instructions.joinToString("\n")
             existingRecipe.updatedAt = LocalDateTime.now()
+            existingRecipe.mealType = dto.mealType.toDisplayName()
+            existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",") {
+                it.toDisplayName()
+            }
+            existingRecipe.country = dto.country.toDisplayName()
+            existingRecipe.cookTime = dto.cookTime
+            existingRecipe.servings = dto.servings
 
             existingRecipe.ingredients.forEach { it.delete() }
             dto.ingredients.forEach { ingredient ->

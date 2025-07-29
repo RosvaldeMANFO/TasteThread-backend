@@ -20,11 +20,11 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
 
     fun toModel(): UserModel {
         return UserModel(
-            name,
-            email,
-            activated,
-            createdAt.toLong(),
-            updatedAt.toLong()
+            name = name,
+            email = email,
+            activated = activated,
+            createdAt = createdAt.toLong(),
+            updatedAt = updatedAt.toLong()
         )
     }
 }

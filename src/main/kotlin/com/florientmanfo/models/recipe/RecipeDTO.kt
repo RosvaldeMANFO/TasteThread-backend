@@ -9,4 +9,9 @@ data class RecipeDTO(
     val imageUrl: String? = null,
     val ingredients: List<IngredientDTO>,
     val instructions: List<String>,
+    val mealType: MealType,
+    val dietaryRestrictions: List<DietaryRestriction>,
+    val country: Country,
+    val cookTime: Int,
+    val servings: Int,
 )

@@ -16,7 +16,11 @@ class RecipeLikesEntity(id: EntityID<Int>) : IntEntity(id) {
     var createdAt by RecipeLikes.createdAt
 
     fun toModel(): RecipeLikeModel {
-        return RecipeLikeModel(user.toModel(), recipeId, createdAt.toLong())
+        return RecipeLikeModel(
+            user = user.toModel(),
+            recipeId = recipeId,
+            createdAt = createdAt.toLong()
+        )
     }
 
 }

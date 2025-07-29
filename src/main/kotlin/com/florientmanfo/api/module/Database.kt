@@ -33,10 +33,7 @@ fun Application.configureDatabase() {
     val dataSource = HikariDataSource(dbConfig)
     Database.connect(dataSource)
 
-    if (
-        config.property("ktor.environment").getString() == "dev"
-        && config.property("ktor.database.generateMigrationFile").getString().toBoolean()
-    ) {
+    if (config.property("ktor.environment").getString() == "dev") {
         generateMigrationFile()
     } else {
         val flyway = Flyway.configure()

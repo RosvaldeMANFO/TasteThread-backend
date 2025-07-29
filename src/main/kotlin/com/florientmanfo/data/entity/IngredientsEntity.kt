@@ -7,8 +7,7 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class IngredientsEntity(id: EntityID<String>)
-    : Entity<String>(id) {
+class IngredientsEntity(id: EntityID<String>) : Entity<String>(id) {
     companion object : EntityClass<String, IngredientsEntity>(Ingredients)
 
     var name by Ingredients.name
@@ -20,13 +19,13 @@ class IngredientsEntity(id: EntityID<String>)
 
     fun toModel(): IngredientModel {
         return IngredientModel(
-            id.value,
-            recipeId,
-            name,
-            quantity,
-            unit,
-            createdAt.toLong(),
-            updatedAt.toLong()
+            id = id.value,
+            recipeId = recipeId,
+            name = name,
+            quantity = quantity,
+            unit = unit,
+            createdAt = createdAt.toLong(),
+            updatedAt = updatedAt.toLong()
         )
     }
 

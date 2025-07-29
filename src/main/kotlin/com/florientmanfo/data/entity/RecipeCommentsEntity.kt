@@ -18,9 +18,9 @@ class RecipeCommentsEntity(id: EntityID<String>): Entity<String>(id) {
 
     fun toModel(): RecipeCommentModel {
         return RecipeCommentModel(
-            author.toModel(),
-            content,
-            createdAt.toLong()
+            author= author.toModel(),
+            content = content,
+            createdAt = createdAt.toLong()
         )
     }
 }

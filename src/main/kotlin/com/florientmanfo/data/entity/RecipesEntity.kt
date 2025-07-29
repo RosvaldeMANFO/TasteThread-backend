@@ -4,19 +4,28 @@ import com.florientmanfo.com.florientmanfo.data.table.Ingredients
 import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
+import com.florientmanfo.com.florientmanfo.models.recipe.Country
+import com.florientmanfo.com.florientmanfo.models.recipe.DietaryRestriction
+import com.florientmanfo.com.florientmanfo.models.recipe.MealType
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
 import com.florientmanfo.com.florientmanfo.utils.toLong
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 
-class RecipesEntity(id: EntityID<String>): Entity<String>(id) {
+class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     companion object : EntityClass<String, RecipesEntity>(Recipes)
 
     var name by Recipes.name
     var description by Recipes.description
     var imageUrl by Recipes.imageUrl
     var instructions by Recipes.instructions
+    var mealType by Recipes.mealType
+    var dietaryRestriction by Recipes.dietaryRestriction
+    var country by Recipes.country
+    var cookTime by Recipes.cookTime
+    var servings by Recipes.servings
+    var approved by Recipes.approved
     val author by UsersEntity referencedOn Recipes.authorId
     var authorId by Recipes.authorId
     var createdAt by Recipes.createdAt
@@ -27,17 +36,23 @@ class RecipesEntity(id: EntityID<String>): Entity<String>(id) {
 
     fun toModel(): RecipeModel {
         return RecipeModel(
-            id.value,
-            name,
-            author.toModel(),
-            imageUrl,
-            description,
-            ingredients.map { it.toModel() },
-            instructions.split("\n"),
-            comments.map { it.toModel() },
-            likes.map { it.toModel() },
-            createdAt.toLong(),
-            updatedAt.toLong()
+            id = id.value,
+            name = name,
+            author = author.toModel(),
+            imageUrl = imageUrl,
+            mealType = MealType.fromDisplayName(mealType),
+            description = description,
+            dietaryRestrictions = dietaryRestriction.split(",").map { DietaryRestriction.fromDisplayName(it) },
+            country = Country.fromDisplayName(country),
+            cookTime = cookTime,
+            servings = servings,
+            ingredients = ingredients.map { it.toModel() },
+            instructions = instructions.split("\n"),
+            comments = comments.map { it.toModel() },
+            likes = likes.map { it.toModel() },
+            approved = approved,
+            createdAt = createdAt.toLong(),
+            updatedAt = updatedAt.toLong()
         )
     }
 }
