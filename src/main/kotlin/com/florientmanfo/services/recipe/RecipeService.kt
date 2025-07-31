@@ -30,11 +30,8 @@ class RecipeService(
         return repository.deleteRecipe(authorId, id)
     }
 
-    suspend fun findRecipeByQuery(query: String, limit: Int, offset: Long): Result<List<RecipeModel>> {
-        if (query.isBlank()) {
-            throw Exception("The query cannot be empty.")
-        }
-        return repository.findRecipeByQuery(query, limit, offset)
+    suspend fun findRecipe(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> {
+        return repository.findRecipe(filter, limit, offset)
     }
 
     suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> {

@@ -26,6 +26,7 @@ dependencies {
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.server.auth.jwt)
     implementation(libs.koin.ktor)
+    implementation(libs.ktor.server.call.logging)
 
     implementation(libs.exposed.core)
     implementation(libs.exposed.dao)

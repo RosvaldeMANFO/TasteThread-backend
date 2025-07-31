@@ -15,7 +15,6 @@ fun Application.configureRouting() {
 
     routing {
         userRouting(userService)
-        recipeRouting(recipeService)
         authenticate("auth-jwt") {
             get("/") {
                 call.respondText("Hello cooker!")

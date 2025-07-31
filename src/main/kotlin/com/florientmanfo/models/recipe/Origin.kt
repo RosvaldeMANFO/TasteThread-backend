@@ -3,7 +3,7 @@ package com.florientmanfo.com.florientmanfo.models.recipe
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Country(val displayName: String) {
+enum class Origin(val displayName: String) {
     AMERICAN("American"),
     ITALIAN("Italian"),
     MEXICAN("Mexican"),
@@ -36,7 +36,7 @@ enum class Country(val displayName: String) {
     }
 
     companion object {
-        fun fromDisplayName(displayName: String): Country {
+        fun fromDisplayName(displayName: String): Origin {
             return entries.find { it.displayName.equals(displayName, ignoreCase = true) } ?: UNKNOWN
         }
     }

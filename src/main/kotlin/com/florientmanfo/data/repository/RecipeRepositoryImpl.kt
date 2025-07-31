@@ -7,13 +7,13 @@ import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeRepository
+import com.florientmanfo.com.florientmanfo.models.recipe.*
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
+import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
 import org.jetbrains.exposed.sql.or
@@ -50,7 +50,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 instructions = dto.instructions.joinToString("\n")
                 mealType = dto.mealType.toDisplayName()
                 dietaryRestriction = dto.dietaryRestrictions.joinToString(",") { it.toDisplayName() }
-                country = dto.country.toDisplayName()
+                origin = dto.origin.toDisplayName()
                 cookTime = dto.cookTime
                 servings = dto.servings
                 approved = true
@@ -109,7 +109,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",") {
                 it.toDisplayName()
             }
-            existingRecipe.country = dto.country.toDisplayName()
+            existingRecipe.origin = dto.origin.toDisplayName()
             existingRecipe.cookTime = dto.cookTime
             existingRecipe.servings = dto.servings
 
@@ -151,21 +151,46 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         }
     }
 
-    override suspend fun findRecipeByQuery(query: String, limit: Int, offset: Long): Result<List<RecipeModel>> =
+    override suspend fun findRecipe(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> =
         suspendTransaction {
             try {
-                val recipes = RecipesEntity.find {
-                    (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
+                val conditions = mutableListOf<Op<Boolean>>()
+
+                filter.query?.let { query ->
+                    conditions += (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
                             (Recipes.description.lowerCase() like "%${query.lowercase()}%")
                 }
+
+                filter.origin?.let { origin ->
+                    conditions += Recipes.origin eq origin
+                }
+
+                filter.mealType?.let { mealType ->
+                    conditions += Recipes.mealType eq mealType
+                }
+
+                if (filter.dietaryRestrictions.isNotEmpty()) {
+                    conditions += Recipes.dietaryRestriction.lowerCase() like
+                            "%${filter.dietaryRestrictions.joinToString(",").lowercase()}%"
+                }
+
+                val queryOp = conditions.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+
+                val recipes = RecipesEntity.find { queryOp }
                     .limit(limit).offset(offset)
-                    .map { it.toModel() }
-                Result.success(recipes)
+                    .toList()
+
+                val sortedRecipes = when (filter.mostLiked) {
+                    true -> recipes.sortedByDescending { it.likes.count() }
+                    false -> recipes.sortedBy { it.likes.count() }
+                    null -> recipes.sortedByDescending { it.createdAt }
+                }
+
+                Result.success(sortedRecipes.map { it.toModel() })
             } catch (e: Exception) {
                 Result.failure(e)
             }
         }
-
 
     override suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> = suspendTransaction {
         try {

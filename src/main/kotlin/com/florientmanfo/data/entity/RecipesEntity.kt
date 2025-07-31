@@ -4,9 +4,9 @@ import com.florientmanfo.com.florientmanfo.data.table.Ingredients
 import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
-import com.florientmanfo.com.florientmanfo.models.recipe.Country
 import com.florientmanfo.com.florientmanfo.models.recipe.DietaryRestriction
 import com.florientmanfo.com.florientmanfo.models.recipe.MealType
+import com.florientmanfo.com.florientmanfo.models.recipe.Origin
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
 import com.florientmanfo.com.florientmanfo.utils.toLong
 import org.jetbrains.exposed.dao.Entity
@@ -22,7 +22,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var instructions by Recipes.instructions
     var mealType by Recipes.mealType
     var dietaryRestriction by Recipes.dietaryRestriction
-    var country by Recipes.country
+    var origin by Recipes.origin
     var cookTime by Recipes.cookTime
     var servings by Recipes.servings
     var approved by Recipes.approved
@@ -32,7 +32,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var updatedAt by Recipes.updatedAt
     val ingredients by IngredientsEntity.referrersOn(Ingredients.recipeId, true)
     private val comments by RecipeCommentsEntity.referrersOn(RecipeComments.recipeId, true)
-    private val likes by RecipeLikesEntity.referrersOn(RecipeLikes.recipeId, true)
+    val likes by RecipeLikesEntity.referrersOn(RecipeLikes.recipeId, true)
 
     fun toModel(): RecipeModel {
         return RecipeModel(
@@ -43,7 +43,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             mealType = MealType.fromDisplayName(mealType),
             description = description,
             dietaryRestrictions = dietaryRestriction.split(",").map { DietaryRestriction.fromDisplayName(it) },
-            country = Country.fromDisplayName(country),
+            country = Origin.fromDisplayName(origin),
             cookTime = cookTime,
             servings = servings,
             ingredients = ingredients.map { it.toModel() },

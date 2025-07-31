@@ -11,7 +11,7 @@ data class RecipeDTO(
     val instructions: List<String>,
     val mealType: MealType,
     val dietaryRestrictions: List<DietaryRestriction>,
-    val country: Country,
+    val origin: Origin,
     val cookTime: Int,
     val servings: Int,
 )

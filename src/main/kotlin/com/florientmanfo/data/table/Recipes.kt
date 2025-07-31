@@ -13,7 +13,7 @@ object Recipes : IdTable<String>("recipes") {
     val instructions = text("instructions")
     val mealType = varchar("meal_type", 50)
     val dietaryRestriction = varchar("dietary_restriction", 50)
-    val country = varchar("country", 50)
+    val origin = varchar("origin", 50)
     val cookTime = integer("cook_time")
     val servings = integer("servings")
     val approved = bool("approved").default(false)

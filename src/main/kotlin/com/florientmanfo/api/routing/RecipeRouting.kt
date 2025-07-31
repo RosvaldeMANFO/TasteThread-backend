@@ -1,5 +1,6 @@
 package com.florientmanfo.com.florientmanfo.api.routing
 
+import com.florientmanfo.com.florientmanfo.models.recipe.FilterDTO
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentDTO
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
 import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
@@ -46,6 +47,40 @@ private suspend fun <T> multipartRecipe(
 
 fun Route.protectedRecipeRouting(service: RecipeService) {
     route("/recipes") {
+        get {
+            try {
+                val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
+                val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
+                val result = service.getAllRecipes(limit, offset)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<List<String>>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
+        }
+
+        get("/search") {
+            try {
+                val query = call.receive<FilterDTO>()
+                val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
+                val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
+                val result = service.findRecipe(query, limit, offset)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
+        }
         post {
             try {
                 val authorId = retrieveAuthorId(call)
@@ -160,47 +195,6 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
                 val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
                 val result = service.getMyRecipes(userId, limit, offset)
-                val response = result.fold(
-                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
-                )
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            }
-        }
-    }
-}
-
-fun Route.recipeRouting(service: RecipeService) {
-    route("/recipes") {
-        get {
-            try {
-
-                val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
-                val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
-                val result = service.getAllRecipes(limit, offset)
-                val response = result.fold(
-                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
-                )
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            } catch (e: Exception) {
-                val result = Result.failure<List<String>>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            }
-        }
-
-        get("/search") {
-            try {
-                val query = call.request.queryParameters["query"]
-                    ?: throw IllegalArgumentException("Missing query parameter")
-                val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
-                val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
-                val result = service.findRecipeByQuery(query, limit, offset)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
