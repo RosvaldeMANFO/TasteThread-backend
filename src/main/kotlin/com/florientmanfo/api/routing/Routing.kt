@@ -14,6 +14,7 @@ fun Application.configureRouting() {
     val recipeService: RecipeService by inject()
 
     routing {
+        authRouting(userService)
         userRouting(userService)
         authenticate("auth-jwt") {
             get("/") {

@@ -6,6 +6,7 @@ import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
+import com.florientmanfo.com.florientmanfo.models.user.Token
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
@@ -34,7 +35,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
         }
     }
 
-    override suspend fun login(dto: LoginDTO): Result<String> = suspendTransaction {
+    override suspend fun login(dto: LoginDTO): Result<Token> = suspendTransaction {
         try {
             val entity = UsersEntity.find { Users.email eq dto.email }.firstOrNull()
             if (entity != null && Password.verify(dto.password, entity.password)) {
@@ -47,17 +48,43 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
         }
     }
 
-    private fun generateToken(userId: String): String {
-        val secret = config.property("ktor.jwt.secret").getString()
-        val algorithm = Algorithm.HMAC256(secret)
-        return JWT.create()
-            .withClaim("userId", userId)
-            .withExpiresAt(
-                Date(System.currentTimeMillis() + TOKEN_VALIDITY)
-            ).sign(algorithm)
+    override suspend fun refreshToken(refreshToken: String): Result<Token> {
+        return try {
+            val secret = config.property("ktor.jwt.secret").getString()
+            val algorithm = Algorithm.HMAC256(secret)
+            val verifier = JWT.require(algorithm).build()
+            val decodedJWT = verifier.verify(refreshToken)
+
+            val userId = decodedJWT.getClaim("userId").asString()
+            Result.success(generateToken(userId))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
+    private fun generateToken(userId: String): Token {
+        val secret = config.property("ktor.jwt.secret").getString()
+        val algorithm = Algorithm.HMAC256(secret)
+
+        val accessToken = JWT.create()
+            .withClaim("userId", userId)
+            .withExpiresAt(Date(System.currentTimeMillis() + TOKEN_VALIDITY))
+            .sign(algorithm)
+
+        val refreshToken = JWT.create()
+            .withClaim("userId", userId)
+            .withExpiresAt(Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
+            .sign(algorithm)
+
+        return Token(
+            accessToken = accessToken,
+            refreshToken = refreshToken
+        )
+    }
+
+
     companion object {
-        private const val TOKEN_VALIDITY = 36_000_00 * 10
+        private const val TOKEN_VALIDITY = 120_000
+        private const val REFRESH_TOKEN_VALIDITY = 36_000_00 * 24 * 7
     }
 }
