@@ -13,6 +13,7 @@ import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import org.jetbrains.exposed.sql.Op
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.lowerCase
@@ -172,6 +173,10 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 if (filter.dietaryRestrictions.isNotEmpty()) {
                     conditions += Recipes.dietaryRestriction.lowerCase() like
                             "%${filter.dietaryRestrictions.joinToString(",").lowercase()}%"
+                }
+
+                filter.cookTime?.let { cookTime ->
+                    conditions += Recipes.cookTime lessEq cookTime
                 }
 
                 val queryOp = conditions.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
