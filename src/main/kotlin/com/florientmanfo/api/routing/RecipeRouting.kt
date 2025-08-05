@@ -64,7 +64,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
             }
         }
 
-        get("/search") {
+        post("/search") {
             try {
                 val query = call.receive<FilterDTO>()
                 val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
