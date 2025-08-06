@@ -84,7 +84,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
 
 
     companion object {
-        private const val TOKEN_VALIDITY = 120_000
+        private const val TOKEN_VALIDITY = 36_000_00
         private const val REFRESH_TOKEN_VALIDITY = 36_000_00 * 24 * 7
     }
 }

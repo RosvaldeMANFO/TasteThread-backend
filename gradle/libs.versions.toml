@@ -39,6 +39,8 @@ kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version
 postgres-socket-factory = { module = "com.google.cloud.sql:postgres-socket-factory", version.ref = "postgres-socket-factory-version"}
 flywaydb = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywaydb-version"}
 
+websocket = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor-version" }
+
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }

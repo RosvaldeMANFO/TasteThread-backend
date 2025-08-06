@@ -1,5 +1,7 @@
 package com.florientmanfo.com.florientmanfo.api.routing
 
+import com.florientmanfo.api.module.SocketMessage
+import com.florientmanfo.api.module.notifyAllClients
 import com.florientmanfo.com.florientmanfo.models.recipe.FilterDTO
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentDTO
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
@@ -8,8 +10,8 @@ import com.florientmanfo.com.florientmanfo.utils.RequestResult
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
@@ -100,6 +102,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                     )
                 }
+                notifyAllClients(SocketMessage.RECIPE_CREATED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -129,6 +132,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                     )
                 }
+                notifyAllClients(SocketMessage.RECIPE_UPDATED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -146,6 +150,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
+                notifyAllClients(SocketMessage.RECIPE_DELETED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -163,6 +168,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
+                notifyAllClients(SocketMessage.RECIPE_LIKED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -180,6 +186,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
+                notifyAllClients(SocketMessage.RECIPE_COMMENTED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
@@ -199,6 +206,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
+
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)

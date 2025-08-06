@@ -40,6 +40,8 @@ dependencies {
     implementation(libs.postgres.socket.factory)
     implementation(libs.flywaydb)
 
+    implementation(libs.websocket)
+
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit)
