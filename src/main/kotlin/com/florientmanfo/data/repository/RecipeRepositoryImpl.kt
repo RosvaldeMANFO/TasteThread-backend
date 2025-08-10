@@ -32,6 +32,17 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         }
     }
 
+    override suspend fun getRecipe(id: String): Result<RecipeModel?> {
+        return try {
+            suspendTransaction {
+                val recipe = RecipesEntity.findById(id)
+                Result.success(recipe?.toModel())
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     override suspend fun createRecipe(
         authorId: String,
         dto: RecipeDTO,

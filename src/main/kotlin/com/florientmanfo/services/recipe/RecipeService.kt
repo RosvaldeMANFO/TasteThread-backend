@@ -10,6 +10,10 @@ class RecipeService(
         return repository.getAllRecipes(limit, offset)
     }
 
+    suspend fun getRecipe(id: String): Result<RecipeModel?> {
+        return repository.getRecipe(id)
+    }
+
     suspend fun createRecipe(authorId: String, recipe: RecipeDTO, image: ByteArray? = null): Result<RecipeModel> {
         val result = validation.validateRecipe(recipe)
         if (!result.isValid) {
