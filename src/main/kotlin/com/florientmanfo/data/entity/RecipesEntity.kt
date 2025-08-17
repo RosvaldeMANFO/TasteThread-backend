@@ -48,7 +48,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             servings = servings,
             ingredients = ingredients.map { it.toModel() },
             instructions = instructions.split("\n"),
-            comments = comments.map { it.toModel() },
+            comments = comments.sortedByDescending { it.createdAt }.map { it.toModel() },
             likes = likes.map { it.toModel() },
             approved = approved,
             createdAt = createdAt.toLong(),

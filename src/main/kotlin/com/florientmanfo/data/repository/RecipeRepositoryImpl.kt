@@ -12,6 +12,7 @@ import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import org.jetbrains.exposed.sql.Op
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
@@ -25,6 +26,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         try {
             val recipes = RecipesEntity.all()
                 .limit(limit).offset(offset)
+                .orderBy(Recipes.updatedAt to SortOrder.DESC)
                 .map { it.toModel() }.filter { it.approved }
             Result.success(recipes)
         } catch (e: Exception) {
