@@ -4,4 +4,5 @@ interface UserRepository {
     suspend fun register(dto: RegisterDTO): Result<UserModel>
     suspend fun login(dto: LoginDTO): Result<Token>
     suspend fun refreshToken(refreshToken: String): Result<Token>
+    suspend fun getProfile(userId: String): Result<UserModel>
 }

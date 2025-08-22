@@ -62,6 +62,21 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
         }
     }
 
+    override suspend fun getProfile(userId: String): Result<UserModel> {
+        return suspendTransaction {
+            try {
+                val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
+                if (entity != null) {
+                    Result.success(entity.toModel())
+                } else {
+                    Result.failure(Exception("User not found"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
     private fun generateToken(userId: String): Token {
         val secret = config.property("ktor.jwt.secret").getString()
         val algorithm = Algorithm.HMAC256(secret)

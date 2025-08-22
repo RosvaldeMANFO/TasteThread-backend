@@ -21,6 +21,7 @@ fun Application.configureRouting() {
             get("/") {
                 call.respondText("Hello cooker!")
             }
+            protectedUserRouting(userService)
             protectedRecipeRouting(recipeService)
             webSocket()
         }

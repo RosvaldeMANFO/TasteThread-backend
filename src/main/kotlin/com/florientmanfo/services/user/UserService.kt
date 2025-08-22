@@ -32,4 +32,8 @@ class UserService(
     suspend fun refreshToken(refreshToken: String): Result<Token> {
        return repository.refreshToken(refreshToken)
     }
+
+    suspend fun getProfile(userId: String): Result<UserModel> {
+        return repository.getProfile(userId)
+    }
 }
