@@ -32,17 +32,15 @@ fun Route.userRouting(service: UserService) {
 }
 
 fun Route.protectedUserRouting(service: UserService) {
-    authenticate("auth-jwt") {
-        route("/users") {
-            get("/profile") {
-                val userId = retrieveAuthorId(call)
-                val result = service.getProfile(userId)
-                val response = result.fold(
-                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
-                )
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            }
+    route("/users") {
+        get("/profile") {
+            val userId = retrieveAuthorId(call)
+            val result = service.getProfile(userId)
+            val response = result.fold(
+                onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+            )
+            call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
         }
     }
 }

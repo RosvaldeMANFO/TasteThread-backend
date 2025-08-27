@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 data class UserModel(
     val id: String,
     val name: String,
+    val password: String,
     val email: String,
     val activated: Boolean,
     val createdAt: Long,
