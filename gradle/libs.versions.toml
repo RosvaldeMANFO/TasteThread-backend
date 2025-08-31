@@ -3,7 +3,7 @@
 kotlin-version = "2.1.10"
 ktor-version = "3.1.3"
 logback-version = "1.4.14"
-exposed-version = "0.61.0"
+exposed-version = "1.0.0-beta-5"
 hikaricp-version = "5.0.1"
 postgres-version = "42.6.0"
 mindrot-jbcrypt-version = "0.4"

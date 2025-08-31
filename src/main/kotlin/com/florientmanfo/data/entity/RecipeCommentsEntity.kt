@@ -3,9 +3,9 @@ package com.florientmanfo.com.florientmanfo.data.entity
 import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentModel
 import com.florientmanfo.com.florientmanfo.utils.toLong
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
 
 class RecipeCommentsEntity(id: EntityID<String>): Entity<String>(id) {
     companion object: EntityClass<String, RecipeCommentsEntity>(RecipeComments)

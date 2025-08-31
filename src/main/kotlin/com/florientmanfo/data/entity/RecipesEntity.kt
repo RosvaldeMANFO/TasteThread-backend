@@ -9,9 +9,9 @@ import com.florientmanfo.com.florientmanfo.models.recipe.MealType
 import com.florientmanfo.com.florientmanfo.models.recipe.Origin
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
 import com.florientmanfo.com.florientmanfo.utils.toLong
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
 
 class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     companion object : EntityClass<String, RecipesEntity>(Recipes)

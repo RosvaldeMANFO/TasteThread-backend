@@ -9,9 +9,9 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
 import org.flywaydb.core.Flyway
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.io.File
 
 fun Application.configureDatabase() {
@@ -33,42 +33,54 @@ fun Application.configureDatabase() {
     val dataSource = HikariDataSource(dbConfig)
     Database.connect(dataSource)
 
-    if (config.property("ktor.environment").getString() == "dev") {
-        generateMigrationFile()
-    } else {
+    val generatedDir = File("build/generated-migrations").apply { mkdirs() }
+    val locations = mutableListOf("classpath:db/migration", "filesystem:${generatedDir.absolutePath}")
+
+    generateMigrationFile(generatedDir)?.let { version ->
         val flyway = Flyway.configure()
             .dataSource(dataSource)
-            .locations("classpath:db/migration")
+            .locations(*locations.toTypedArray())
             .load()
-
-        flyway.migrate()
+        val result = flyway.migrate()
+        if (result.migrationsExecuted > 0) {
+            println("✅ Database migrated to version $version")
+        } else {
+            println("✅ No new migrations to apply. Database is up-to-date.")
+        }
     }
 }
 
-fun generateMigrationFile() {
+fun generateMigrationFile(outputDir: File): String? {
+    val tables = arrayOf(
+        Users,
+        Recipes,
+        Ingredients,
+        RecipeLikes,
+        RecipeComments
+    )
     val statements = transaction {
-        SchemaUtils.createStatements(
-            Users,
-            Recipes,
-            Ingredients,
-            RecipeLikes,
-            RecipeComments
-        )
+        SchemaUtils.createStatements(*tables).let {
+            it.ifEmpty {
+                SchemaUtils.statementsRequiredToActualizeScheme(*tables)
+            }
+        }
     }
 
     if (statements.isNotEmpty()) {
         val migrationDir = File("src/main/resources/db/migration")
         migrationDir.mkdirs()
 
-        val versionedName = "V${System.currentTimeMillis()}.sql"
-        val migrationFile = File(migrationDir, versionedName)
+        val version = "${System.currentTimeMillis()}"
+        val file = File(outputDir, "V${version}__auto.sql")
 
-        migrationFile.printWriter().use { writer ->
+        file.printWriter().use { writer ->
             statements.forEach { statement ->
                 writer.println("$statement;")
             }
         }
-        println("✅ Migration file generated: ${migrationFile.name}")
+        println("✅ Migration file generated: ${file.name}")
+        return version
     }
+    return null
 }
 

@@ -9,6 +9,7 @@ import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.models.user.Token
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
+import com.florientmanfo.com.florientmanfo.models.user.UserRole
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.Password
@@ -26,6 +27,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 password = Password.hash(dto.password)
                 name = dto.username
                 activated = false
+                role = UserRole.USER.name
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }.toModel()

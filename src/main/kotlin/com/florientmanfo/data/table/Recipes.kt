@@ -1,9 +1,9 @@
 package com.florientmanfo.com.florientmanfo.data.table
 
-import org.jetbrains.exposed.dao.id.IdTable
-import org.jetbrains.exposed.sql.ReferenceOption
-import org.jetbrains.exposed.sql.javatime.CurrentDateTime
-import org.jetbrains.exposed.sql.javatime.datetime
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.javatime.CurrentDateTime
+import org.jetbrains.exposed.v1.javatime.datetime
 
 object Recipes : IdTable<String>("recipes") {
     override val id = varchar("id", 255).entityId()

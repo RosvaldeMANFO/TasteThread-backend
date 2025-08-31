@@ -2,10 +2,11 @@ package com.florientmanfo.com.florientmanfo.data.entity
 
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
+import com.florientmanfo.com.florientmanfo.models.user.UserRole
 import com.florientmanfo.com.florientmanfo.utils.toLong
-import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
-import org.jetbrains.exposed.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.dao.Entity
+import org.jetbrains.exposed.v1.dao.EntityClass
 
 class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
 
@@ -14,6 +15,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
     var name by Users.name
     var email by Users.email
     var password by Users.password
+    var role by Users.role
     var activated by Users.activated
     var createdAt by Users.createdAt
     var updatedAt by Users.updatedAt
@@ -24,6 +26,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
             name = name,
             email = email,
             password = password,
+            role = UserRole.valueOf(role),
             activated = activated,
             createdAt = createdAt.toLong(),
             updatedAt = updatedAt.toLong()
