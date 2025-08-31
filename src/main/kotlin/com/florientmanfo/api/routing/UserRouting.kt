@@ -4,9 +4,6 @@ import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.services.user.UserService
 import com.florientmanfo.com.florientmanfo.utils.RequestResult
 import io.ktor.http.*
-import io.ktor.server.auth.authenticate
-import io.ktor.server.auth.jwt.JWTPrincipal
-import io.ktor.server.auth.principal
 import io.ktor.server.request.*
 import io.ktor.server.response.respond
 import io.ktor.server.routing.*
@@ -19,6 +16,21 @@ fun Route.userRouting(service: UserService) {
                 val result = service.register(dto)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
+        }
+        post("/activate") {
+            val token = call.receive<String>()
+            try {
+                val result = service.activateAccount(token)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)

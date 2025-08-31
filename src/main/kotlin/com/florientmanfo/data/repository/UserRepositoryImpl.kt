@@ -25,7 +25,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 email = dto.email
                 password = Password.hash(dto.password)
                 name = dto.username
-                activated = true
+                activated = false
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }.toModel()
@@ -68,6 +68,23 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
                 if (entity != null) {
                     Result.success(entity.toModel())
+                } else {
+                    Result.failure(Exception("User not found"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun activateAccount(userId: String): Result<String> {
+        return suspendTransaction {
+            try {
+                val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
+                if (entity != null) {
+                    entity.activated = true
+                    entity.updatedAt = LocalDateTime.now()
+                    Result.success("Account activated successfully")
                 } else {
                     Result.failure(Exception("User not found"))
                 }

@@ -10,6 +10,7 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureCORS()
     configureWebSockets()
     configureLogging()
     configureAuthentication()

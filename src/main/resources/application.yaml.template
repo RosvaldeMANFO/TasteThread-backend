@@ -17,5 +17,9 @@ ktor:
     jwt:
         secret:
 
+    link:
+        secret:
+        baseUrl:
+
     firebase:
         bucket:

@@ -8,7 +8,7 @@ import org.koin.dsl.module
 
 val serviceModule = module {
     single { UserValidationService() }
-    single { UserService(get(), get()) }
+    single { UserService(get(), get(), get()) }
     single { RecipeValidationService() }
     single { RecipeService(get(), get()) }
 }

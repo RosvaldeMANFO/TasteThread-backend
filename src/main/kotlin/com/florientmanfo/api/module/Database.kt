@@ -60,7 +60,7 @@ fun generateMigrationFile() {
         val migrationDir = File("src/main/resources/db/migration")
         migrationDir.mkdirs()
 
-        val versionedName = "V${System.currentTimeMillis()}__auto_generated.sql"
+        val versionedName = "V${System.currentTimeMillis()}.sql"
         val migrationFile = File(migrationDir, versionedName)
 
         migrationFile.printWriter().use { writer ->

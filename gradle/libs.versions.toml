@@ -16,6 +16,9 @@ flywaydb-version = "10.14.0"
 [libraries]
 ktor-server-core = { module = "io.ktor:ktor-server-core-jvm", version.ref = "ktor-version" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor-version" }
+ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor-version" }
+ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor-version" }
+ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor-version" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-version" }
@@ -33,8 +36,6 @@ hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp-version" }
 postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
 firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-version"}
 
-ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor-version" }
-ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor-version" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin-version" }
 postgres-socket-factory = { module = "com.google.cloud.sql:postgres-socket-factory", version.ref = "postgres-socket-factory-version"}
 flywaydb = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywaydb-version"}
