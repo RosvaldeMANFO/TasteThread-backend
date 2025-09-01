@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.table.Users
+import com.florientmanfo.com.florientmanfo.models.user.Login
 import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.models.user.Token
@@ -15,6 +16,9 @@ import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.Password
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.LocalDateTime
 import java.util.*
 
@@ -37,11 +41,19 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
         }
     }
 
-    override suspend fun login(dto: LoginDTO): Result<Token> = suspendTransaction {
+    override suspend fun login(dto: LoginDTO): Result<Login> = suspendTransaction {
         try {
             val entity = UsersEntity.find { Users.email eq dto.email }.firstOrNull()
             if (entity != null && Password.verify(dto.password, entity.password)) {
-                Result.success(generateToken(entity.id.value))
+                val nextLink = if (entity.role == UserRole.ADMIN.name)
+                    config.property("ktor.admin.afterAuthLink").getString()
+                else null
+                Result.success(
+                    Login(
+                        nextLink = nextLink,
+                        token = generateToken(entity.id.value)
+                    )
+                )
             } else {
                 Result.failure(Exception("Invalid credentials"))
             }
@@ -90,6 +102,31 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 } else {
                     Result.failure(Exception("User not found"))
                 }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun createAdminIfNotExists(): Result<Unit> {
+        val adminEmail = config.property("ktor.admin.email").getString()
+        val adminPassword = config.property("ktor.admin.password").getString()
+        val adminName = config.property("ktor.admin.name").getString()
+        return suspendTransaction {
+            try {
+                val admin = Users.selectAll().where { Users.email eq adminEmail }.firstOrNull()
+                if (admin == null) {
+                    UsersEntity.new(IDGenerator.generate(IDSuffix.USER)) {
+                        email = adminEmail
+                        password = Password.hash(adminPassword)
+                        name = adminName
+                        activated = false
+                        role = UserRole.ADMIN.name
+                        createdAt = LocalDateTime.now()
+                        updatedAt = LocalDateTime.now()
+                    }
+                }
+                Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(e)
             }

@@ -21,5 +21,11 @@ ktor:
         secret:
         baseUrl:
 
+    admin:
+        email:
+        password:
+        name:
+        afterAuthLink:
+
     firebase:
         bucket:

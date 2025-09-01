@@ -1,17 +1,18 @@
 package com.florientmanfo.com.florientmanfo.api.module
 
-import com.florientmanfo.com.florientmanfo.data.table.Ingredients
-import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
-import com.florientmanfo.com.florientmanfo.data.table.Recipes
-import com.florientmanfo.com.florientmanfo.data.table.Users
-import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
+import com.florientmanfo.com.florientmanfo.data.table.*
+import com.florientmanfo.com.florientmanfo.models.user.UserRepository
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import io.ktor.server.application.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.koin.ktor.ext.inject
 import java.io.File
 
 fun Application.configureDatabase() {
@@ -48,6 +49,11 @@ fun Application.configureDatabase() {
             println("✅ No new migrations to apply. Database is up-to-date.")
         }
     }
+
+    val userRepository: UserRepository by inject()
+    CoroutineScope(Dispatchers.IO).launch {
+        userRepository.createAdminIfNotExists()
+    }
 }
 
 fun generateMigrationFile(outputDir: File): String? {
@@ -83,4 +89,3 @@ fun generateMigrationFile(outputDir: File): String? {
     }
     return null
 }
-

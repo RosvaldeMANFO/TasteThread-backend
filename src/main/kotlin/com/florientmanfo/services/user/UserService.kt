@@ -2,12 +2,17 @@ package com.florientmanfo.com.florientmanfo.services.user
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.florientmanfo.com.florientmanfo.models.user.Login
 import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.models.user.Token
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
 import io.ktor.server.config.ApplicationConfig
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.util.Date
 
 class UserService(
@@ -15,7 +20,7 @@ class UserService(
     private val validation: UserValidationService,
     private val config: ApplicationConfig
 ) {
-    suspend fun login(dto: LoginDTO): Result<Token> {
+    suspend fun login(dto: LoginDTO): Result<Login> {
         val result = validation.validateCredential(dto.email, dto.password)
         if (result.isValid.not()) {
             throw Exception(result.message)
