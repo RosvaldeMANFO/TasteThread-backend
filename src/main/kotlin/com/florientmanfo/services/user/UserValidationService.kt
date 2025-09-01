@@ -5,7 +5,7 @@ import com.florientmanfo.com.florientmanfo.utils.ValidationResult
 class UserValidationService {
     fun validateCredential(email: String, password: String): ValidationResult {
         val emailRegex = Regex("^[A-Za-z](.*)(@)(.+)(\\.)(.+)")
-        val passwordRegex = Regex("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}\$")
+        val passwordRegex = Regex("^(?=.*[A-Za-z])(?=.*\\d).{8,}$")
         if (!emailRegex.matches(email)) {
             return ValidationResult(
                 false,
