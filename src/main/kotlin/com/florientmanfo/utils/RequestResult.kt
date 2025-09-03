@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class RequestResult<T>(
     val status: String,
     val data: T? = null,
-    val error: String? = null,
+    val message: String? = null,
     val httpStatus: Int
 ) {
     companion object {

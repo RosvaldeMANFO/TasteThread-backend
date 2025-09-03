@@ -19,4 +19,15 @@ class UserValidationService {
         }
         return ValidationResult(true)
     }
+
+    fun validatePassword(password: String): ValidationResult {
+        val passwordRegex = Regex("^(?=.*[A-Za-z])(?=.*\\d).{8,}$")
+        if (!passwordRegex.matches(password)) {
+            return ValidationResult(
+                false,
+                "Password must contain letters, numbers, and have a length of at least 8 characters"
+            )
+        }
+        return ValidationResult(true)
+    }
 }

@@ -25,10 +25,27 @@ fun Route.userRouting(service: UserService) {
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
-        post("/activate") {
-            val token = call.receive<String>()
+
+        post("/request-password-reset") {
+            val email = call.receive<String>()
             try {
-                val result = service.activateAccount(token)
+                val result = service.requestPasswordReset(email)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
+        }
+
+        post("/request-account-activation") {
+            val email = call.receive<String>()
+            try {
+                val result = service.requestAccountActivation(email)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
@@ -53,6 +70,39 @@ fun Route.protectedUserRouting(service: UserService) {
                 onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
             )
             call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+        }
+
+        post("/activate") {
+            val userId = retrieveAuthorId(call)
+            try {
+                val result = service.activateAccount(userId)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
+        }
+
+        post("/reset-password") {
+            val userId = retrieveAuthorId(call)
+            val newPassword = call.receive<String>()
+            try {
+                val result = service.resetPassword(userId, newPassword)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception) {
+                val result = Result.failure<String>(e)
+                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            }
         }
     }
 }
