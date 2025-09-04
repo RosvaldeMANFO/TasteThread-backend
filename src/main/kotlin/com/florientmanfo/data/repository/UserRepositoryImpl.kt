@@ -43,6 +43,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
                 Result.success(
                     Login(
                         nextLink = nextLink,
+                        activated = entity.activated,
                         token = generateToken(entity.id.value)
                     )
                 )
