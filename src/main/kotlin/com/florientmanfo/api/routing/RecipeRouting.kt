@@ -27,7 +27,10 @@ private suspend fun <T> multipartRecipe(
         when (part) {
             is PartData.FormItem -> {
                 if (part.name == "recipe") {
-                    dto = Json.decodeFromString<RecipeDTO>(part.value)
+                    val json = Json {
+                        ignoreUnknownKeys = true
+                    }
+                    dto = json.decodeFromString<RecipeDTO>(part.value)
                 }
             }
 
