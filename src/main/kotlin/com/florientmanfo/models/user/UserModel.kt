@@ -9,6 +9,7 @@ data class UserModel(
     val name: String,
     val password: String,
     val email: String,
+    val imageUrl: String?,
     val role: UserRole,
     val activated: Boolean,
     val createdAt: Long,

@@ -3,7 +3,9 @@ package com.florientmanfo.com.florientmanfo.data.repository
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
+import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.Users
+import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.com.florientmanfo.models.user.*
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
@@ -14,7 +16,10 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDateTime
 import java.util.*
 
-class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository {
+class UserRepositoryImpl(
+    private val config: ApplicationConfig,
+    private val firebase: FirebaseRepository
+) : UserRepository {
 
     override suspend fun register(dto: RegisterDTO): Result<String> = suspendTransaction {
         try {
@@ -105,7 +110,7 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
         return suspendTransaction {
             try {
                 val entity = UsersEntity.find { Users.email eq email }.firstOrNull()
-                val token = entity?.let{ generateToken(it.id.value).accessToken }
+                val token = entity?.let { generateToken(it.id.value).accessToken }
                 Result.success(token)
             } catch (e: Exception) {
                 Result.failure(e)
@@ -152,6 +157,67 @@ class UserRepositoryImpl(private val config: ApplicationConfig) : UserRepository
             } catch (e: Exception) {
                 Result.failure(e)
             }
+        }
+    }
+
+    override suspend fun updateUser(
+        userId: String,
+        dto: UserDTO,
+        imageFile: ByteArray?
+    ): Result<Unit> {
+        return suspendTransaction {
+            try {
+                val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
+                if (entity != null) {
+                    imageFile?.let { newPhoto ->
+                        entity.imageUrl?.let {
+                            firebase.deleteFile(
+                                entity.id.value,
+                                BucketPath.USERS
+                            )
+                        }
+                        entity.imageUrl = firebase.uploadFile(
+                            newPhoto,
+                            entity.id.value,
+                            BucketPath.USERS
+                        )
+                    }
+
+                    dto.password?.let {
+                        entity.password = Password.hash(it)
+                    }
+                    dto.name?.let {
+                        entity.name = it
+                    }
+                    dto.activated?.let {
+                        entity.activated = it
+                    }
+                    dto.role?.let {
+                        entity.role = it.name
+                    }
+                    entity.updatedAt = LocalDateTime.now()
+                    Result.success(Unit)
+                } else {
+                    Result.failure(Exception("User not found"))
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    override suspend fun deleteAccount(userId: String): Result<Unit> {
+        return try {
+            UsersEntity.find { Users.id eq userId }.firstOrNull()?.let {
+                it.imageUrl?.let { imageUrl ->
+                    firebase.deleteFile(it.id.value, BucketPath.USERS)
+                    it.imageUrl = null
+                }
+                it.delete()
+                Result.success(Unit)
+            } ?: Result.failure(Exception("User not found"))
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 

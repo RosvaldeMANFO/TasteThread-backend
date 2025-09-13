@@ -11,6 +11,7 @@ object Users: IdTable<String>("users") {
     val password = varchar("password", 255)
     val activated = bool("activated").default(false)
     val role = varchar("role", 20).default("USER")
+    val imageUrl = varchar("image_path", 512).nullable()
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     override val primaryKey = PrimaryKey(id)

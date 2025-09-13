@@ -42,6 +42,8 @@ fun Application.configureDatabase() {
             .dataSource(dataSource)
             .locations(*locations.toTypedArray())
             .load()
+
+        flyway.repair()
         val result = flyway.migrate()
         if (result.migrationsExecuted > 0) {
             println("✅ Database migrated to version $version")

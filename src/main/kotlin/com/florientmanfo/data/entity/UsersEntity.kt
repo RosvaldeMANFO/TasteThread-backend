@@ -16,6 +16,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
     var email by Users.email
     var password by Users.password
     var role by Users.role
+    var imageUrl by Users.imageUrl
     var activated by Users.activated
     var createdAt by Users.createdAt
     var updatedAt by Users.updatedAt
@@ -27,6 +28,7 @@ class UsersEntity(id: EntityID<String>) : Entity<String>(id) {
             email = email,
             password = password,
             role = UserRole.valueOf(role),
+            imageUrl = imageUrl,
             activated = activated,
             createdAt = createdAt.toLong(),
             updatedAt = updatedAt.toLong()

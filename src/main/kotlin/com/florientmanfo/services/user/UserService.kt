@@ -4,6 +4,7 @@ import com.florientmanfo.com.florientmanfo.models.user.Login
 import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.models.user.Token
+import com.florientmanfo.com.florientmanfo.models.user.UserDTO
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
 import io.ktor.server.config.ApplicationConfig
@@ -91,6 +92,31 @@ class UserService(
         }
         return repository.resetPassword(userId, newPassword).fold(
             onSuccess = { Result.success("Password reset successfully") },
+            onFailure = { Result.failure(it) }
+        )
+    }
+
+    suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<String> {
+        dto.password?.let{
+            val result = validation.validatePassword(it)
+            if (result.isValid.not()) {
+                throw Exception(result.message)
+            }
+        }
+        dto.name?.let {
+            if(it.isBlank()){
+                throw Exception("Name cannot be empty")
+            }
+        }
+        return repository.updateUser(userId, dto).fold(
+            onSuccess = { Result.success("Account updated successfully") },
+            onFailure = { Result.failure(it) }
+        )
+    }
+
+    suspend fun deleteAccount(userId: String): Result<Unit>{
+        return repository.deleteAccount(userId).fold(
+            onSuccess = { Result.success(Unit)},
             onFailure = { Result.failure(it) }
         )
     }

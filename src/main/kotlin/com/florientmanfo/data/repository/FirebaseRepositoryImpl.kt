@@ -2,6 +2,7 @@ package com.florientmanfo.com.florientmanfo.data.repository
 
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.google.auth.oauth2.GoogleCredentials
+import com.google.cloud.firestore.BasePath
 import com.google.cloud.storage.StorageOptions
 import com.google.cloud.storage.Blob
 import com.google.cloud.storage.Bucket
@@ -17,13 +18,13 @@ class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRe
         configureCloudStorage()
     }
 
-    override fun uploadFile(fileData: ByteArray, fileName: String?): String {
-        val blob: Blob = bucket.create("Recipes/$fileName", fileData, "image/jpeg")
+    override fun uploadFile(fileData: ByteArray, fileName: String?, path: BucketPath): String {
+        val blob: Blob = bucket.create("${path.value}/$fileName", fileData, "image/jpeg")
         return "https://storage.googleapis.com/${blob.bucket}/${blob.name}"
     }
 
-    override fun deleteFile(fileName: String) {
-        bucket.get("Recipes/$fileName")?.delete()
+    override fun deleteFile(fileName: String, path: BucketPath) {
+        bucket.get("${path.value}/$fileName")?.delete()
     }
 
     private fun configureCloudStorage() {
@@ -42,5 +43,13 @@ class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRe
             .build()
             .service
         bucket = storage.get(bucketName)
+    }
+
+    companion object {
+        enum class BucketPath(val value: String) {
+            RECIPES("Recipes"),
+            USERS("Users"),
+            IMAGES("Images");
+        }
     }
 }

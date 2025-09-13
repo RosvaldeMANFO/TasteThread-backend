@@ -4,6 +4,7 @@ import com.florientmanfo.com.florientmanfo.data.entity.IngredientsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeCommentsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeLikesEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
+import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
@@ -55,7 +56,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         try {
             val id = IDGenerator.generate(IDSuffix.RECIPE)
             val imageUrl = recipeImageFile?.let {
-                firebase.uploadFile(it, id)
+                firebase.uploadFile(it, id, BucketPath.RECIPES)
             }
 
             val newRecipe = RecipesEntity.new(id) {
@@ -108,12 +109,12 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             dto.imageUrl?.let {
                 existingRecipe.imageUrl = it
             } ?: existingRecipe.imageUrl?.let {
-                firebase.deleteFile(existingRecipe.id.value)
+                firebase.deleteFile(existingRecipe.id.value, BucketPath.RECIPES)
                 existingRecipe.imageUrl = null
             }
 
             recipeImageFile?.let {
-                existingRecipe.imageUrl = firebase.uploadFile(it, recipeId)
+                existingRecipe.imageUrl = firebase.uploadFile(it, recipeId, BucketPath.RECIPES)
             }
 
             existingRecipe.name = dto.name
@@ -156,7 +157,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             }
 
             if (recipe.imageUrl != null) {
-                firebase.deleteFile(recipe.id.value)
+                firebase.deleteFile(recipe.id.value, BucketPath.RECIPES)
             }
 
             recipe.delete()

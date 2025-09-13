@@ -139,7 +139,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     multipartRecipe(call) { dto, image ->
                         val result = service.updateRecipe(id, authorId, dto, image)
                         result.fold(
-                            onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
+                            onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                             onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                         )
                     }

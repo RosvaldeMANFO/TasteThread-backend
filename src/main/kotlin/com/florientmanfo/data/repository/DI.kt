@@ -8,5 +8,5 @@ import org.koin.dsl.module
 val repositoryModule = module {
     single<FirebaseRepository> { FirebaseRepositoryImpl(get()) }
     single<RecipeRepository> { RecipeRepositoryImpl(get()) }
-    single<UserRepository> { UserRepositoryImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
 }

@@ -9,4 +9,6 @@ interface UserRepository {
     suspend fun generateTokenFromEmail(email: String): Result<String?>
     suspend fun createAdminIfNotExists(): Result<Unit>
     suspend fun resetPassword(userId: String, newPassword: String): Result<Unit>
+    suspend fun updateUser(userId: String, dto: UserDTO, imageFile: ByteArray? = null): Result<Unit>
+    suspend fun deleteAccount(userId: String): Result<Unit>
 }
