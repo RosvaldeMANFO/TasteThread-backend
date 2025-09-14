@@ -96,7 +96,7 @@ class UserService(
         )
     }
 
-    suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<String> {
+    suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<UserModel> {
         dto.password?.let{
             val result = validation.validatePassword(it)
             if (result.isValid.not()) {
@@ -108,8 +108,8 @@ class UserService(
                 throw Exception("Name cannot be empty")
             }
         }
-        return repository.updateUser(userId, dto).fold(
-            onSuccess = { Result.success("Account updated successfully") },
+        return repository.updateUser(userId, dto, image).fold(
+            onSuccess = { Result.success(it) },
             onFailure = { Result.failure(it) }
         )
     }

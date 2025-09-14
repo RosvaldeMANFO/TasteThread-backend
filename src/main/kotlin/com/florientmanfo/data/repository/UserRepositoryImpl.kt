@@ -164,7 +164,7 @@ class UserRepositoryImpl(
         userId: String,
         dto: UserDTO,
         imageFile: ByteArray?
-    ): Result<Unit> {
+    ): Result<UserModel> {
         return suspendTransaction {
             try {
                 val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
@@ -196,7 +196,11 @@ class UserRepositoryImpl(
                         entity.role = it.name
                     }
                     entity.updatedAt = LocalDateTime.now()
-                    Result.success(Unit)
+                    if(dto.deleteImage){
+                        entity.imageUrl = null
+                        firebase.deleteFile(entity.id.value, BucketPath.USERS)
+                    }
+                    Result.success(entity.toModel())
                 } else {
                     Result.failure(Exception("User not found"))
                 }
