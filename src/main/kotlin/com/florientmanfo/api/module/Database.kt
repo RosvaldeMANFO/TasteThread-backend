@@ -4,7 +4,9 @@ import com.florientmanfo.com.florientmanfo.data.table.*
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.pool.HikariPool
 import io.ktor.server.application.*
+import io.ktor.server.config.ApplicationConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,12 +19,15 @@ import java.io.File
 
 fun Application.configureDatabase() {
     val config = this.environment.config
+    val dbName = config.property("ktor.database.name").getString()
     val connectionName = config.property("ktor.database.connectionName").getString()
+    val baseUrl = config.property("ktor.database.url").getString()
     val completeUrl = if (!connectionName.isBlank()) {
-        config.property("ktor.database.url").getString().replace("CLOUD_SQL_CONNECTION_NAME", connectionName)
+        "$baseUrl$dbName$connectionName"
     } else {
-        config.property("ktor.database.url").getString()
+        "$baseUrl${dbName}"
     }
+
     val dbConfig = HikariConfig().apply {
         driverClassName = config.property("ktor.database.driver").getString()
         jdbcUrl = completeUrl
@@ -30,26 +35,22 @@ fun Application.configureDatabase() {
         password = config.property("ktor.database.password").getString()
         maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
     }
-    val dataSource = HikariDataSource(dbConfig)
-    Database.connect(dataSource)
-
-    val generatedDir = File("build/generated-migrations").apply { mkdirs() }
-    val locations = mutableListOf("classpath:db/migration", "filesystem:${generatedDir.absolutePath}")
-
-    generateMigrationFile(generatedDir)?.let { version ->
-        val flyway = Flyway.configure()
-            .dataSource(dataSource)
-            .locations(*locations.toTypedArray())
-            .load()
-
-        flyway.repair()
-        val result = flyway.migrate()
-        if (result.migrationsExecuted > 0) {
-            println("✅ Database migrated to version $version")
-        } else {
-            println("✅ No new migrations to apply. Database is up-to-date.")
-        }
+    val dataSource = try {
+        HikariDataSource(dbConfig)
+    } catch (e: HikariPool.PoolInitializationException) {
+        createDatabase(config)
+        HikariDataSource(dbConfig)
     }
+
+    Database.connect(dataSource)
+    if (config.property("ktor.environment").getString() == "dev") {
+        generateMigration()?.let {
+            runMigrations(dataSource)
+        }
+    } else {
+        runMigrations(dataSource)
+    }
+    runMigrations(dataSource)
 
     val userRepository: UserRepository by inject()
     CoroutineScope(Dispatchers.IO).launch {
@@ -57,7 +58,49 @@ fun Application.configureDatabase() {
     }
 }
 
-fun generateMigrationFile(outputDir: File): String? {
+private fun createDatabase(config: ApplicationConfig) {
+    try {
+        val dbName = config.property("ktor.database.name").getString()
+        val dbConfig = HikariConfig().apply {
+            driverClassName = config.property("ktor.database.driver").getString()
+            jdbcUrl = config.property("ktor.database.url").getString() + "postgres"
+            username = config.property("ktor.database.user").getString()
+            password = config.property("ktor.database.password").getString()
+            maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
+        }
+        HikariDataSource(dbConfig).use { dataSource ->
+            dataSource.connection.use { connection ->
+                connection.prepareStatement("CREATE DATABASE $dbName WITH ENCODING='UTF8'\n").execute()
+            }
+        }
+    } catch (e: Exception) {
+        println("Error while creating database ${e.message}")
+    }
+}
+
+private fun runMigrations(dataSource: HikariDataSource) {
+    val flyway = Flyway.configure()
+        .dataSource(dataSource)
+        .locations("classpath:db/migration")
+        .validateOnMigrate(true)
+        .cleanDisabled(true)
+        .load()
+
+    try {
+        flyway.repair()
+        val result = flyway.migrate()
+        if (result.migrationsExecuted > 0) {
+            println("✅ Database migrated successfully. Applied ${result.migrationsExecuted} migrations")
+        } else {
+            println("✅ Database is up-to-date. No migrations to apply.")
+        }
+    } catch (e: Exception) {
+        println("❌ Migration failed: ${e.message}")
+        throw e
+    }
+}
+
+fun generateMigration(): String? {
     val tables = arrayOf(
         Users,
         Recipes,
@@ -65,28 +108,34 @@ fun generateMigrationFile(outputDir: File): String? {
         RecipeLikes,
         RecipeComments
     )
+
     val statements = transaction {
-        SchemaUtils.createStatements(*tables).let {
-            it.ifEmpty {
-                SchemaUtils.statementsRequiredToActualizeScheme(*tables)
-            }
-        }
+        SchemaUtils.statementsRequiredToActualizeScheme(*tables)
     }
 
     if (statements.isNotEmpty()) {
         val migrationDir = File("src/main/resources/db/migration")
         migrationDir.mkdirs()
 
-        val version = "${System.currentTimeMillis()}"
-        val file = File(outputDir, "V${version}__auto.sql")
+        val existingFiles = migrationDir.listFiles()?.mapNotNull { file ->
+            val name = file.name
+            if (name.startsWith("V") && name.contains("__")) {
+                name.substring(1, name.indexOf("__")).toIntOrNull()
+            } else null
+        }?.maxOrNull() ?: 0
+
+        val version = (existingFiles + 1).toString().padStart(3, '0')
+        val file = File(migrationDir, "V${version}__auto_generated.sql")
 
         file.printWriter().use { writer ->
             statements.forEach { statement ->
                 writer.println("$statement;")
             }
         }
-        println("✅ Migration file generated: ${file.name}")
+        println("✅ Migration file generated: ${file.name} with ${statements.size} statements")
         return version
+    } else {
+        println("ℹ️ No database changes detected, skipping migration generation")
+        return null
     }
-    return null
 }

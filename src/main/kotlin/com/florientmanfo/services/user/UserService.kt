@@ -60,7 +60,7 @@ class UserService(
                 if (it == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
-                    val resetLink = "${config.property("ktor.link.baseUrl").getString()}/reset-password?token=$it"
+                    val resetLink = "${config.property("ktor.link.baseUrl").getString()}reset-password?token=$it"
                     println("Password reset link: $resetLink")
                     // TODO: Send password reset email with the link
                     Result.success("Check your email for password reset")
@@ -76,7 +76,7 @@ class UserService(
                 if (it == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
-                    val activationLink = "${config.property("ktor.link.baseUrl").getString()}/activate?token=$it"
+                    val activationLink = "${config.property("ktor.link.baseUrl").getString()}activate?token=$it"
                     println("Account activation link: $activationLink")
                     // TODO: Send account activation email with the link
                     Result.success("Check your email for account activation")

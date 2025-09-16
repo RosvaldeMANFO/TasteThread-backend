@@ -10,6 +10,7 @@ ktor:
         driver:
         connectionName: ""
         url:
+        name:
         user:
         password:
         maximumPoolSize: 10
