@@ -2,8 +2,10 @@ package com.florientmanfo.com.florientmanfo.data.repository
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
+import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
 import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
+import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.com.florientmanfo.models.user.*
@@ -12,6 +14,9 @@ import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.Password
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDateTime
 import java.util.*
@@ -196,14 +201,30 @@ class UserRepositoryImpl(
                         entity.role = it.name
                     }
                     entity.updatedAt = LocalDateTime.now()
-                    if(dto.deleteImage){
+                    if (dto.deleteImage) {
                         entity.imageUrl = null
                         firebase.deleteFile(entity.id.value, BucketPath.USERS)
+                    }
+                    CoroutineScope(Dispatchers.IO).launch {
+                        updateUserRecipe(userId)
                     }
                     Result.success(entity.toModel())
                 } else {
                     Result.failure(Exception("User not found"))
                 }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+    }
+
+    private suspend fun updateUserRecipe(userId: String): Result<Unit> {
+        return suspendTransaction {
+            try {
+                RecipesEntity.find { Recipes.authorId eq userId }.forEach { entity ->
+                    entity.updatedAt = LocalDateTime.now()
+                }
+                Result.success(Unit)
             } catch (e: Exception) {
                 Result.failure(e)
             }
