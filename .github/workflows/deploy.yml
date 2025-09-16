@@ -64,7 +64,7 @@ jobs:
         with:
           service: ${{ vars.REPOSITORY }}
           region: ${{ vars.REGION }}
-          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/app:${{ github.sha }}
+          image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
           env_vars: |
             CLOUD_SQL_CONNECTION_NAME=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
             DATABASE=${{ secrets.DATABASE }}
