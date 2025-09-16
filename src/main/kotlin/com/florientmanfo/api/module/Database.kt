@@ -22,23 +22,24 @@ fun Application.configureDatabase() {
     val dbName = config.property("ktor.database.name").getString()
     val connectionName = config.property("ktor.database.connectionName").getString()
     val baseUrl = config.property("ktor.database.url").getString()
-    val completeUrl = if (!connectionName.isBlank()) {
-        "$baseUrl$dbName$connectionName"
-    } else {
-        "$baseUrl${dbName}"
-    }
+    val dbUrl = "$baseUrl${dbName}"
 
     val dbConfig = HikariConfig().apply {
-        driverClassName = config.property("ktor.database.driver").getString()
-        jdbcUrl = completeUrl
+        jdbcUrl = dbUrl
         username = config.property("ktor.database.user").getString()
         password = config.property("ktor.database.password").getString()
         maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
     }
+
+    if(!connectionName.isBlank()){
+        dbConfig.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
+        dbConfig.addDataSourceProperty("cloudSqlInstance", connectionName);
+    }
+
     val dataSource = try {
         HikariDataSource(dbConfig)
     } catch (e: HikariPool.PoolInitializationException) {
-        createDatabase(config)
+        createDatabase(config, connectionName)
         HikariDataSource(dbConfig)
     }
 
@@ -58,7 +59,7 @@ fun Application.configureDatabase() {
     }
 }
 
-private fun createDatabase(config: ApplicationConfig) {
+private fun createDatabase(config: ApplicationConfig, connectionName: String) {
     try {
         val dbName = config.property("ktor.database.name").getString()
         val dbConfig = HikariConfig().apply {
@@ -67,6 +68,10 @@ private fun createDatabase(config: ApplicationConfig) {
             username = config.property("ktor.database.user").getString()
             password = config.property("ktor.database.password").getString()
             maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
+        }
+        if(!connectionName.isBlank()){
+            dbConfig.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
+            dbConfig.addDataSourceProperty("cloudSqlInstance", connectionName);
         }
         HikariDataSource(dbConfig).use { dataSource ->
             dataSource.connection.use { connection ->
