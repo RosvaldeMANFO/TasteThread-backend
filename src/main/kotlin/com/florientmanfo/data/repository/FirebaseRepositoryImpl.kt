@@ -28,20 +28,28 @@ class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRe
     }
 
     private fun configureCloudStorage() {
-        val credentials = when (config.property("ktor.environment").getString()) {
-            "prod" -> javaClass.classLoader.getResourceAsStream("service-account-key.json")
+        val storage = when (config.property("ktor.environment").getString()) {
+            "prod" -> {
+                val credentials = GoogleCredentials.getApplicationDefault()
+                StorageOptions.newBuilder()
+                    .setCredentials(credentials)
+                    .build()
+                    .service
+            }
+
             else -> {
                 val keyFilePath = this::class.java.getResource("/service-account-key.json")
                     ?.path ?: throw Exception("Key file not found")
-                FileInputStream(keyFilePath)
+                val credentials = FileInputStream(keyFilePath)
+                StorageOptions.newBuilder()
+                    .setCredentials(GoogleCredentials.fromStream(credentials))
+                    .build()
+                    .service
             }
         }
 
         val bucketName = config.property("ktor.firebase.bucket").getString()
-        val storage = StorageOptions.newBuilder()
-            .setCredentials(GoogleCredentials.fromStream(credentials))
-            .build()
-            .service
+
         bucket = storage.get(bucketName)
     }
 
