@@ -40,6 +40,11 @@ jobs:
           workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
           service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
+      - name: Create service account key file
+        run: |
+          mkdir -p src/main/resources
+          echo '${{ secrets.SERVICE_ACCOUNT_KEY }}' > src/main/resources/service-account-key.json
+
       - name: Create application config file
         run: |
           mkdir -p src/main/resources
@@ -57,10 +62,9 @@ jobs:
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ vars.REPOSITORY }}-backend
+          service: ${{ vars.REPOSITORY }}
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
-          flags: '--allow-unauthenticated'
           env_vars: |
             CLOUD_SQL_CONNECTION_NAME=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
             DATABASE=${{ secrets.DATABASE }}
