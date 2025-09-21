@@ -62,9 +62,10 @@ jobs:
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ vars.REPOSITORY }}
+          service: ${{ vars.REPOSITORY }}-backend
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
+          flags: '--allow-unauthenticated'
           env_vars: |
             CLOUD_SQL_CONNECTION_NAME=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
             DATABASE=${{ secrets.DATABASE }}
