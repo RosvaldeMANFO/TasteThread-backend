@@ -13,6 +13,7 @@ import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.Password
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
+import org.jetbrains.exposed.v1.core.or
 import io.ktor.server.config.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -79,10 +80,10 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun getProfile(userId: String): Result<UserModel> {
+    override suspend fun getProfile(userIdOrEmail: String): Result<UserModel> {
         return suspendTransaction {
             try {
-                val entity = UsersEntity.find { Users.id eq userId }.firstOrNull()
+                val entity = UsersEntity.find { (Users.id eq userIdOrEmail) or  (Users.email eq userIdOrEmail) }.firstOrNull()
                 if (entity != null) {
                     Result.success(entity.toModel())
                 } else {

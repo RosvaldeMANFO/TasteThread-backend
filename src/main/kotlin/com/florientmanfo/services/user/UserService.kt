@@ -7,6 +7,7 @@ import com.florientmanfo.com.florientmanfo.models.user.Token
 import com.florientmanfo.com.florientmanfo.models.user.UserDTO
 import com.florientmanfo.com.florientmanfo.models.user.UserModel
 import com.florientmanfo.com.florientmanfo.models.user.UserRepository
+import com.florientmanfo.com.florientmanfo.services.email.EmailService
 import io.ktor.server.config.ApplicationConfig
 
 class UserService(
@@ -14,6 +15,7 @@ class UserService(
     private val validation: UserValidationService,
     private val config: ApplicationConfig
 ) {
+    private val emailService = EmailService(config)
     suspend fun login(dto: LoginDTO): Result<Login> {
         val result = validation.validateCredential(dto.email, dto.password)
         if (result.isValid.not()) {
@@ -31,7 +33,11 @@ class UserService(
             onSuccess = { token ->
                 val activationLink = "${config.property("ktor.link.baseUrl").getString()}/activate?token=$token"
                 println("Activation link: $activationLink")
-                // TODO: Send activation email with the link
+                emailService.sendActivationEmail(
+                    dto.email,
+                    dto.username,
+                    activationLink
+                )
                 Result.success("Check your email for account activation")
             },
             onFailure = { Result.failure(it) }
@@ -55,14 +61,19 @@ class UserService(
 
     suspend fun requestPasswordReset(email: String): Result<String> {
         return repository.generateTokenFromEmail(email).fold(
-            onFailure = {  Result.failure(it) },
+            onFailure = { Result.failure(it) },
             onSuccess = {
-                if (it == null) {
+                val user = repository.getProfile(email).getOrNull()
+                if (it == null || user == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
                     val resetLink = "${config.property("ktor.link.baseUrl").getString()}reset-password?token=$it"
                     println("Password reset link: $resetLink")
-                    // TODO: Send password reset email with the link
+                    emailService.sendPasswordResetEmail(
+                        email,
+                        user.name,
+                        resetLink
+                    )
                     Result.success("Check your email for password reset")
                 }
             }
@@ -71,14 +82,19 @@ class UserService(
 
     suspend fun requestAccountActivation(email: String): Result<String> {
         return repository.generateTokenFromEmail(email).fold(
-            onFailure = {  Result.failure(it) },
+            onFailure = { Result.failure(it) },
             onSuccess = {
-                if (it == null) {
+                val user = repository.getProfile(email).getOrNull()
+                if (it == null || user == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
                     val activationLink = "${config.property("ktor.link.baseUrl").getString()}activate?token=$it"
                     println("Account activation link: $activationLink")
-                    // TODO: Send account activation email with the link
+                    emailService.sendActivationEmail(
+                        user.email,
+                        user.name,
+                        activationLink
+                    )
                     Result.success("Check your email for account activation")
                 }
             }
@@ -97,14 +113,14 @@ class UserService(
     }
 
     suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<UserModel> {
-        dto.password?.let{
+        dto.password?.let {
             val result = validation.validatePassword(it)
             if (result.isValid.not()) {
                 throw Exception(result.message)
             }
         }
         dto.name?.let {
-            if(it.isBlank()){
+            if (it.isBlank()) {
                 throw Exception("Name cannot be empty")
             }
         }
@@ -114,9 +130,9 @@ class UserService(
         )
     }
 
-    suspend fun deleteAccount(userId: String): Result<Unit>{
+    suspend fun deleteAccount(userId: String): Result<Unit> {
         return repository.deleteAccount(userId).fold(
-            onSuccess = { Result.success(Unit)},
+            onSuccess = { Result.success(Unit) },
             onFailure = { Result.failure(it) }
         )
     }

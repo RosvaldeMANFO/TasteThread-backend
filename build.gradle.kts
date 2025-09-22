@@ -42,6 +42,8 @@ dependencies {
     implementation(libs.flywaydb)
 
     implementation(libs.websocket)
+    implementation(libs.google.api.services)
+    implementation(libs.jakarta.mail)
 
     implementation(libs.ktor.server.config.yaml)
     testImplementation(libs.ktor.server.test.host)

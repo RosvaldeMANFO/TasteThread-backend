@@ -1,4 +1,3 @@
-
 [versions]
 kotlin-version = "2.1.10"
 ktor-version = "3.1.3"
@@ -11,6 +10,8 @@ koin-version = "3.5.0"
 firebase-version = "9.4.3"
 postgres-socket-factory-version = "1.15.1"
 flywaydb-version = "10.14.0"
+google-api-services-version = "v1-rev20240520-2.0.0"
+jakarta-mail-version = "2.0.1"
 
 
 [libraries]
@@ -22,7 +23,7 @@ ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref 
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback-version" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor-version" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor-version" }
-ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor-version"}
+ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor-version" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor-version" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin-version" }
 ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor-version" }
@@ -30,19 +31,22 @@ ktor-server-call-logging = { module = "io.ktor:ktor-server-call-logging", versio
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed-version" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed-version" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed-version" }
-exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed-version"}
-mindrot-jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "mindrot-jbcrypt-version"}
+exposed-java-time = { module = "org.jetbrains.exposed:exposed-java-time", version.ref = "exposed-version" }
+mindrot-jbcrypt = { module = "org.mindrot:jbcrypt", version.ref = "mindrot-jbcrypt-version" }
 hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp-version" }
 postgresql-driver = { module = "org.postgresql:postgresql", version.ref = "postgres-version" }
-firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-version"}
+firebase-admin = { module = "com.google.firebase:firebase-admin", version.ref = "firebase-version" }
 
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin-version" }
-postgres-socket-factory = { module = "com.google.cloud.sql:postgres-socket-factory", version.ref = "postgres-socket-factory-version"}
-flywaydb = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywaydb-version"}
+postgres-socket-factory = { module = "com.google.cloud.sql:postgres-socket-factory", version.ref = "postgres-socket-factory-version" }
+flywaydb = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flywaydb-version" }
 
 websocket = { module = "io.ktor:ktor-server-websockets", version.ref = "ktor-version" }
+
+google-api-services = { module = "com.google.apis:google-api-services-gmail", version.ref = "google-api-services-version" }
+jakarta-mail = { module = "com.sun.mail:jakarta.mail", version.ref = "jakarta-mail-version"}
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin-version" }
 ktor = { id = "io.ktor.plugin", version.ref = "ktor-version" }
-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version"}
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin-version" }

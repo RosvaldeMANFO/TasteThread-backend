@@ -27,5 +27,9 @@ ktor:
         name:
         afterAuthLink:
 
+    email:
+        address:
+        name:
+
     firebase:
         bucket:

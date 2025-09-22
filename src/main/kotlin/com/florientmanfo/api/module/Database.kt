@@ -45,11 +45,7 @@ fun Application.configureDatabase() {
 
     Database.connect(dataSource)
     if (config.property("ktor.environment").getString() == "dev") {
-        generateMigration()?.let {
-            runMigrations(dataSource)
-        }
-    } else {
-        runMigrations(dataSource)
+        generateMigration()
     }
     runMigrations(dataSource)
 
