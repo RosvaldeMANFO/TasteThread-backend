@@ -125,7 +125,7 @@ fun generateMigration(): String? {
             } else null
         }?.maxOrNull() ?: 0
 
-        val version = (existingFiles + 1).toString().padStart(3, '0')
+        val version = (existingFiles + 1).toString()
         val file = File(migrationDir, "V${version}__auto_generated.sql")
 
         file.printWriter().use { writer ->
