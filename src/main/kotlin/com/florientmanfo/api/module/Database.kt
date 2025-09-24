@@ -16,6 +16,7 @@ import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.koin.ktor.ext.inject
 import java.io.File
+import kotlin.jvm.javaClass
 
 fun Application.configureDatabase() {
     val config = this.environment.config
@@ -82,8 +83,9 @@ private fun createDatabase(config: ApplicationConfig, connectionName: String) {
 private fun runMigrations(dataSource: HikariDataSource) {
     val flyway = Flyway.configure()
         .dataSource(dataSource)
-        .locations("classpath:db/migration")
+        .locations("classpath:db/migration/")
         .validateOnMigrate(true)
+        .validateMigrationNaming(true)
         .cleanDisabled(true)
         .load()
 

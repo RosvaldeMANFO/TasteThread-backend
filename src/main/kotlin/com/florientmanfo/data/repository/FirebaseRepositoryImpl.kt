@@ -2,12 +2,10 @@ package com.florientmanfo.com.florientmanfo.data.repository
 
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.firestore.BasePath
 import com.google.cloud.storage.StorageOptions
 import com.google.cloud.storage.Blob
 import com.google.cloud.storage.Bucket
 import io.ktor.server.config.*
-import java.io.FileInputStream
 
 
 class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRepository {
@@ -28,14 +26,7 @@ class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRe
     }
 
     private fun configureCloudStorage() {
-        val credentials = when (config.property("ktor.environment").getString()) {
-            "prod" -> javaClass.classLoader.getResourceAsStream("service-account-key.json")
-            else -> {
-                val keyFilePath = this::class.java.getResource("/service-account-key.json")
-                    ?.path ?: throw Exception("Key file not found")
-                FileInputStream(keyFilePath)
-            }
-        }
+        val credentials = javaClass.classLoader.getResourceAsStream("service-account-key.json")
 
         val bucketName = config.property("ktor.firebase.bucket").getString()
         val storage = StorageOptions.newBuilder()
