@@ -31,7 +31,9 @@ class UserService(
         }
         return repository.register(dto).fold(
             onSuccess = { token ->
-                val activationLink = "${config.property("ktor.link.baseUrl").getString()}/activate?token=$token"
+                val host = config.property("ktor.cors.host").getString()
+                val scheme = config.property("ktor.cors.scheme").getString()
+                val activationLink = "$scheme://$host/activate?token=$token"
                 println("Activation link: $activationLink")
                 emailService.sendActivationEmail(
                     dto.email,
@@ -67,7 +69,9 @@ class UserService(
                 if (it == null || user == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
-                    val resetLink = "${config.property("ktor.link.baseUrl").getString()}reset-password?token=$it"
+                    val host = config.property("ktor.cors.host").getString()
+                    val scheme = config.property("ktor.cors.scheme").getString()
+                    val resetLink = "$scheme://$host/reset-password?token=$it"
                     println("Password reset link: $resetLink")
                     emailService.sendPasswordResetEmail(
                         email,
@@ -88,7 +92,9 @@ class UserService(
                 if (it == null || user == null) {
                     Result.failure(Exception("No user found with this email"))
                 } else {
-                    val activationLink = "${config.property("ktor.link.baseUrl").getString()}activate?token=$it"
+                    val host = config.property("ktor.cors.host").getString()
+                    val scheme = config.property("ktor.cors.scheme").getString()
+                    val activationLink = "$scheme://$host/activate?token=$it"
                     println("Account activation link: $activationLink")
                     emailService.sendActivationEmail(
                         user.email,

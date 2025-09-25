@@ -17,6 +17,7 @@ fun Application.configureRouting() {
     routing {
         authRouting(userService)
         userRouting(userService)
+        preflightedRoute()
         authenticate("auth-jwt") {
             get("/") {
                 call.respondText("Hello chef!")

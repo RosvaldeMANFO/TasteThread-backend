@@ -73,6 +73,5 @@ jobs:
             DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
             FIREBASE_BUCKET=${{ vars.FIREBASE_BUCKET }}
-            WEB_BASE_URL=${{ vars.WEB_BASE_URL }}
             EMAIL_ADDRESS=${{ vars.EMAIL_ADDRESS }}
             APP_NAME=${{ vars.APP_NAME }}

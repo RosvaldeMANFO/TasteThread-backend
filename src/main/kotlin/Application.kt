@@ -10,11 +10,11 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureDI()
     configureCors()
     configureWebSockets()
     configureLogging()
     configureAuthentication()
-    configureDI()
     configureRouting()
     configureSerialization()
     configureDatabase()
