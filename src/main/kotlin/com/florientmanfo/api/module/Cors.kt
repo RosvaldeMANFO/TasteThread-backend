@@ -18,7 +18,6 @@ fun Application.configureCors() {
         HttpMethod.DefaultMethods.forEach(::allowMethod)
 
         allowHeaders { true }
-        allowHeader(HttpHeaders.UserAgent)
         allowHeader(HttpHeaders.ContentType)
         allowHeader(HttpHeaders.Authorization)
         allowHeader(HttpHeaders.AccessControlAllowOrigin)

@@ -15,16 +15,18 @@ fun Application.configureRouting() {
     val recipeService: RecipeService by inject()
 
     routing {
-        authRouting(userService)
-        userRouting(userService)
-        preflightedRoute()
-        authenticate("auth-jwt") {
-            get("/") {
-                call.respondText("Hello chef!")
+        route("/api") {
+            authRouting(userService)
+            userRouting(userService)
+            preflightedRoute()
+            authenticate("auth-jwt") {
+                get("/") {
+                    call.respondText("Hello chef!")
+                }
+                protectedUserRouting(userService)
+                protectedRecipeRouting(recipeService)
+                webSocket()
             }
-            protectedUserRouting(userService)
-            protectedRecipeRouting(recipeService)
-            webSocket()
         }
     }
 }
