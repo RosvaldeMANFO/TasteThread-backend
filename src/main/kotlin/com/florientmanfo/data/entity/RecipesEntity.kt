@@ -4,9 +4,6 @@ import com.florientmanfo.com.florientmanfo.data.table.Ingredients
 import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
-import com.florientmanfo.com.florientmanfo.models.recipe.DietaryRestriction
-import com.florientmanfo.com.florientmanfo.models.recipe.MealType
-import com.florientmanfo.com.florientmanfo.models.recipe.Origin
 import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
 import com.florientmanfo.com.florientmanfo.utils.toLong
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
@@ -40,10 +37,10 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             name = name,
             author = author.toModel(),
             imageUrl = imageUrl,
-            mealType = MealType.fromDisplayName(mealType),
+            mealType = mealType,
             description = description,
-            dietaryRestrictions = dietaryRestriction.split(",").map { DietaryRestriction.fromDisplayName(it) },
-            country = Origin.fromDisplayName(origin),
+            dietaryRestrictions = dietaryRestriction.split(","),
+            country = origin,
             cookTime = cookTime,
             servings = servings,
             ingredients = ingredients.map { it.toModel() },

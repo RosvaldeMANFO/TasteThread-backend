@@ -64,9 +64,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 description = dto.description
                 this.imageUrl = imageUrl
                 instructions = dto.instructions.joinToString("\n")
-                mealType = dto.mealType.toDisplayName()
-                dietaryRestriction = dto.dietaryRestrictions.joinToString(",") { it.toDisplayName() }
-                origin = dto.origin.toDisplayName()
+                mealType = dto.mealType
+                dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
+                origin = dto.origin
                 cookTime = dto.cookTime
                 servings = dto.servings
                 approved = true
@@ -121,11 +121,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             existingRecipe.description = dto.description
             existingRecipe.instructions = dto.instructions.joinToString("\n")
             existingRecipe.updatedAt = LocalDateTime.now()
-            existingRecipe.mealType = dto.mealType.toDisplayName()
-            existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",") {
-                it.toDisplayName()
-            }
-            existingRecipe.origin = dto.origin.toDisplayName()
+            existingRecipe.mealType = dto.mealType
+            existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
+            existingRecipe.origin = dto.origin
             existingRecipe.cookTime = dto.cookTime
             existingRecipe.servings = dto.servings
 

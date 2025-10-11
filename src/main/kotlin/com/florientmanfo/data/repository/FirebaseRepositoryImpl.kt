@@ -40,7 +40,6 @@ class FirebaseRepositoryImpl(private val config: ApplicationConfig) : FirebaseRe
         enum class BucketPath(val value: String) {
             RECIPES("Recipes"),
             USERS("Users"),
-            IMAGES("Images");
         }
     }
 }
