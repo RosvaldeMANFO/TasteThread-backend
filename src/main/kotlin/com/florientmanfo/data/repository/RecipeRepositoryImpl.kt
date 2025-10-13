@@ -40,7 +40,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         return try {
             suspendTransaction {
                 val recipe = RecipesEntity.findById(id)
-                Result.success(recipe?.toModel())
+                recipe?.let {
+                    Result.success(recipe.toModel())
+                } ?: Result.success(null)
             }
         } catch (e: Exception) {
             Result.failure(e)

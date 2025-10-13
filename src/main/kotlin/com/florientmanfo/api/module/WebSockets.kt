@@ -12,8 +12,8 @@ val clients = CopyOnWriteArrayList<DefaultWebSocketServerSession>()
 
 fun Application.configureWebSockets() {
     install(WebSockets) {
-        pingPeriod = 15.seconds
-        timeout = 60.seconds
+        pingPeriod = 60.seconds
+        timeout = 120.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
@@ -24,7 +24,12 @@ fun Route.webSocket() {
         clients.add(this)
         try {
             for (frame in incoming) {
-                println(frame)
+                if(frame is Frame.Ping){
+                    send(Frame.Pong(frame.data))
+                }
+                if(frame is Frame.Close) {
+                    break
+                }
             }
         } finally {
             clients.remove(this)
@@ -60,10 +65,4 @@ enum class SocketMessage {
     RECIPE_DELETED,
     RECIPE_LIKED,
     RECIPE_COMMENTED;
-
-    companion object {
-        fun fromString(value: String): SocketMessage? {
-            return entries.find { it.name == value }
-        }
-    }
 }
