@@ -169,6 +169,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
 
     override suspend fun findRecipe(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> =
         suspendTransaction {
+            println(filter)
             try {
                 val conditions = mutableListOf<Op<Boolean>>()
 

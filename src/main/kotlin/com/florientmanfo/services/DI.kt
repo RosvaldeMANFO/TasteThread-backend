@@ -1,5 +1,6 @@
 package com.florientmanfo.com.florientmanfo.services
 
+import com.florientmanfo.com.florientmanfo.services.admin.AdminService
 import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
 import com.florientmanfo.com.florientmanfo.services.recipe.RecipeValidationService
 import com.florientmanfo.com.florientmanfo.services.user.UserService
@@ -11,4 +12,5 @@ val serviceModule = module {
     single { UserService(get(), get(), get()) }
     single { RecipeValidationService() }
     single { RecipeService(get(), get()) }
+    single { AdminService(get()) }
 }
