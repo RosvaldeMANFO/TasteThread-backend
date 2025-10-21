@@ -17,10 +17,27 @@ fun Route.adminRouting(service: AdminService) {
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+                handleException(e)
+            }
+        }
+        post("/approve/{id}") {
+            try {
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
+                val result = service.approveRecipe(id)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception){
+                handleException(e)
             }
         }
     }
+}
+
+private suspend fun RoutingContext.handleException(e: Exception) {
+    val result = Result.failure<String>(e)
+    val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
+    call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
 }

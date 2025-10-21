@@ -7,12 +7,11 @@ import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.amdin.AdminRepository
 import com.florientmanfo.com.florientmanfo.models.amdin.StatsModel
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeRepository
 import com.florientmanfo.com.florientmanfo.models.user.UserRole
-import com.florientmanfo.com.florientmanfo.utils.RequestResult
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
-import io.ktor.server.config.ApplicationConfig
+import io.ktor.server.config.*
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
 
 class AdminRepositoryImpl(
     private val config: ApplicationConfig,
@@ -34,9 +33,13 @@ class AdminRepositoryImpl(
         }
     }
 
-    override suspend fun deleteUserAccount(userEmail: String): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun approuveRecipe(recipeId: String): Result<Unit> {
+        return suspendTransaction {
+            RecipesEntity.findByIdAndUpdate(recipeId) { Recipes.approved eq true }
+            Result.success(Unit)
+        }
     }
+
 
     override suspend fun deleteRecipes(recipeId: String): Result<Unit> {
         TODO("Not yet implemented")

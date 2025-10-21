@@ -9,4 +9,8 @@ class AdminService(
     suspend fun getStats(): Result<StatsModel>{
         return repository.getStats()
     }
+
+    suspend fun approveRecipe(recipeId: String): Result<Unit>{
+        return repository.approuveRecipe(recipeId)
+    }
 }

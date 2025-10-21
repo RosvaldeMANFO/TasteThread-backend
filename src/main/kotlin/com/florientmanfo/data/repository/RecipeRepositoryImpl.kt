@@ -7,19 +7,27 @@ import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
 import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
+import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.com.florientmanfo.models.recipe.*
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
+import org.jetbrains.exposed.v1.core.Join
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
+import org.jetbrains.exposed.v1.core.alias
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.core.leftJoin
 import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.core.rightJoin
 import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.selectAll
 
 import java.time.LocalDateTime
 
@@ -169,36 +177,47 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
 
     override suspend fun findRecipe(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> =
         suspendTransaction {
-            println(filter)
             try {
                 val conditions = mutableListOf<Op<Boolean>>()
+                val userAlias = Users.alias("author")
+                val join = Recipes.innerJoin(userAlias, { Recipes.authorId }, { userAlias[Users.id] })
 
-                filter.query?.let { query ->
-                    conditions += (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
-                            (Recipes.description.lowerCase() like "%${query.lowercase()}%")
+                filter.query?.takeIf { it.isNotBlank() }?.let { query ->
+                    val lowerQuery = "%${query.lowercase()}%"
+                    conditions += (Recipes.name.lowerCase() like lowerQuery) or
+                            (Recipes.description.lowerCase() like lowerQuery) or
+                            (userAlias[Users.name].lowerCase() like lowerQuery)
                 }
 
-                filter.origin?.let { origin ->
-                    conditions += Recipes.origin eq origin
+                filter.origin?.let {
+                    conditions += Recipes.origin eq it
                 }
 
-                filter.mealType?.let { mealType ->
-                    conditions += Recipes.mealType eq mealType
+                filter.mealType?.let {
+                    conditions += Recipes.mealType eq it
                 }
 
                 if (filter.dietaryRestrictions.isNotEmpty()) {
-                    conditions += Recipes.dietaryRestriction.lowerCase() like
-                            "%${filter.dietaryRestrictions.joinToString(",").lowercase()}%"
+                    val restrictions = filter.dietaryRestrictions.joinToString(",").lowercase()
+                    conditions += Recipes.dietaryRestriction.lowerCase() like "%$restrictions%"
                 }
 
-                filter.cookTime?.let { cookTime ->
-                    conditions += Recipes.cookTime lessEq cookTime
+                filter.cookTime?.let {
+                    conditions += Recipes.cookTime lessEq it
                 }
 
-                val queryOp = conditions.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                val queryOp = conditions.reduceOrNull(Op<Boolean>::or) ?: Op.TRUE
 
-                val recipes = RecipesEntity.find { queryOp }
-                    .limit(limit).offset(offset)
+                val recipes = filter.query?.let {
+                    join
+                        .select(Recipes.columns)
+                        .where{ queryOp }
+                        .limit(limit)
+                        .offset(offset)
+                        .map { RecipesEntity.wrapRow(it) }
+                } ?: RecipesEntity.find { queryOp }
+                    .limit(limit)
+                    .offset(offset)
                     .toList()
 
                 val sortedRecipes = when (filter.mostLiked) {
@@ -212,6 +231,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 Result.failure(e)
             }
         }
+
 
     override suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> = suspendTransaction {
         try {

@@ -2,6 +2,6 @@ package com.florientmanfo.com.florientmanfo.models.amdin
 
 interface AdminRepository {
     suspend fun getStats(): Result<StatsModel>
-    suspend fun deleteUserAccount(userEmail: String): Result<Unit>
+    suspend fun approuveRecipe(recipeId: String): Result<Unit>
     suspend fun deleteRecipes(recipeId: String): Result<Unit>
 }
