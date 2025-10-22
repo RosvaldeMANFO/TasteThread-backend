@@ -28,12 +28,6 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew build
-
       - name: Authenticate with Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -49,6 +43,12 @@ jobs:
         run: |
           mkdir -p src/main/resources
           echo '${{ vars.APPLICATION_CONFIG }}' > src/main/resources/application.yaml
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
