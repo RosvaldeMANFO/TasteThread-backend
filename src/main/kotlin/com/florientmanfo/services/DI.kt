@@ -12,5 +12,5 @@ val serviceModule = module {
     single { UserService(get(), get(), get()) }
     single { RecipeValidationService() }
     single { RecipeService(get(), get()) }
-    single { AdminService(get()) }
+    single { AdminService(get(), get()) }
 }

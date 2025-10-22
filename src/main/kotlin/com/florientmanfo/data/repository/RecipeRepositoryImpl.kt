@@ -4,31 +4,22 @@ import com.florientmanfo.com.florientmanfo.data.entity.IngredientsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeCommentsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeLikesEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
+import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.com.florientmanfo.models.recipe.*
+import com.florientmanfo.com.florientmanfo.models.user.UserRole
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
-import org.jetbrains.exposed.v1.core.Join
-import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
-import org.jetbrains.exposed.v1.core.alias
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.innerJoin
-import org.jetbrains.exposed.v1.core.leftJoin
-import org.jetbrains.exposed.v1.core.lowerCase
-import org.jetbrains.exposed.v1.core.or
-import org.jetbrains.exposed.v1.core.rightJoin
 import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
 import org.jetbrains.exposed.v1.jdbc.select
-import org.jetbrains.exposed.v1.jdbc.selectAll
-
 import java.time.LocalDateTime
 
 class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRepository {
@@ -68,6 +59,8 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             val imageUrl = recipeImageFile?.let {
                 firebase.uploadFile(it, id, BucketPath.RECIPES)
             }
+            val user = UsersEntity.find { Users.id eq authorId }.firstOrNull()
+                ?: return@suspendTransaction Result.failure(IllegalStateException())
 
             val newRecipe = RecipesEntity.new(id) {
                 name = dto.name
@@ -79,7 +72,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 origin = dto.origin
                 cookTime = dto.cookTime
                 servings = dto.servings
-                approved = true
+                approved = user.role == UserRole.ADMIN.name
                 this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()

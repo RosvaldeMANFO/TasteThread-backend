@@ -34,7 +34,7 @@ fun Application.configureRouting() {
     }
 }
 
-fun retrieveAuthorId(call: ApplicationCall): String {
+fun retrieveUserId(call: ApplicationCall): String {
     val principal = call.principal<JWTPrincipal>()
     return principal?.payload?.getClaim("userId")?.asString() ?:
     throw IllegalArgumentException("Missing userId")

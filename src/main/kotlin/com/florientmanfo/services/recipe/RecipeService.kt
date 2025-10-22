@@ -1,13 +1,16 @@
 package com.florientmanfo.com.florientmanfo.services.recipe
 
 import com.florientmanfo.com.florientmanfo.models.recipe.*
+import com.florientmanfo.com.florientmanfo.models.user.UserRole
 
 class RecipeService(
     private val repository: RecipeRepository,
     private val validation: RecipeValidationService
 ) {
     suspend fun getAllRecipes(limit: Int, offset: Long): Result<List<RecipeModel>> {
-        return repository.getAllRecipes(limit, offset)
+        return repository.getAllRecipes(limit, offset).map {
+            it.filter { recipe -> recipe.approved }
+        }
     }
 
     suspend fun getRecipe(id: String): Result<RecipeModel?> {
@@ -34,8 +37,10 @@ class RecipeService(
         return repository.deleteRecipe(authorId, id)
     }
 
-    suspend fun findRecipe(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> {
-        return repository.findRecipe(filter, limit, offset)
+    suspend fun findRecipes(filter: FilterDTO, limit: Int, offset: Long): Result<List<RecipeModel>> {
+        return repository.findRecipe(filter, limit, offset).map {
+            it.filter { recipe -> recipe.approved }
+        }
     }
 
     suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> {
