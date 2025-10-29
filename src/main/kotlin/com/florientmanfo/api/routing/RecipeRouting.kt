@@ -90,7 +90,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val query = call.receive<FilterDTO>()
                 val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
                 val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0
-                val result = service.findRecipe(query, limit, offset)
+                val result = service.findRecipes(query, limit, offset)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
@@ -104,7 +104,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         }
         post {
             try {
-                val authorId = retrieveAuthorId(call)
+                val authorId = retrieveUserId(call)
                 val response = if (call.request.isMultipart()) {
                     multipartRecipe(call) { dto, image ->
                         val result = service.createRecipe(authorId, dto, image)
@@ -134,7 +134,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         put("/{id}") {
             try {
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
-                val authorId = retrieveAuthorId(call)
+                val authorId = retrieveUserId(call)
                 val response = if (call.request.isMultipart()) {
                     multipartRecipe(call) { dto, image ->
                         val result = service.updateRecipe(id, authorId, dto, image)
@@ -163,7 +163,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         delete("/{id}") {
             try {
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
-                val authorId = retrieveAuthorId(call)
+                val authorId = retrieveUserId(call)
                 val result = service.deleteRecipe(authorId, id)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
@@ -181,7 +181,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         post("/like") {
             try {
                 val recipeId = call.receive<String>()
-                val userId = retrieveAuthorId(call)
+                val userId = retrieveUserId(call)
                 val result = service.likeRecipe(userId, recipeId)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
@@ -199,7 +199,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
         post("/comments") {
             try {
                 val commentDTO = call.receive<RecipeCommentDTO>()
-                val userId = retrieveAuthorId(call)
+                val userId = retrieveUserId(call)
                 val result = service.commentRecipe(userId, commentDTO)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
@@ -216,7 +216,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
 
         get("/my") {
             try {
-                val userId = retrieveAuthorId(call)
+                val userId = retrieveUserId(call)
 
                 val limit = call.request.queryParameters["limit"]?.toIntOrNull() ?: 20
                 val offset = call.request.queryParameters["offset"]?.toLongOrNull() ?:0

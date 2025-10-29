@@ -4,23 +4,22 @@ import com.florientmanfo.com.florientmanfo.data.entity.IngredientsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeCommentsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeLikesEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
+import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
 import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
+import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.com.florientmanfo.models.recipe.*
+import com.florientmanfo.com.florientmanfo.models.user.UserRole
 import com.florientmanfo.com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
-import org.jetbrains.exposed.v1.core.Op
-import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
-import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.lowerCase
-import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
-
+import org.jetbrains.exposed.v1.jdbc.select
 import java.time.LocalDateTime
 
 class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRepository {
@@ -40,7 +39,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         return try {
             suspendTransaction {
                 val recipe = RecipesEntity.findById(id)
-                Result.success(recipe?.toModel())
+                recipe?.let {
+                    Result.success(recipe.toModel())
+                } ?: Result.success(null)
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -58,18 +59,20 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             val imageUrl = recipeImageFile?.let {
                 firebase.uploadFile(it, id, BucketPath.RECIPES)
             }
+            val user = UsersEntity.find { Users.id eq authorId }.firstOrNull()
+                ?: return@suspendTransaction Result.failure(IllegalStateException())
 
             val newRecipe = RecipesEntity.new(id) {
                 name = dto.name
                 description = dto.description
                 this.imageUrl = imageUrl
                 instructions = dto.instructions.joinToString("\n")
-                mealType = dto.mealType.toDisplayName()
-                dietaryRestriction = dto.dietaryRestrictions.joinToString(",") { it.toDisplayName() }
-                origin = dto.origin.toDisplayName()
+                mealType = dto.mealType
+                dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
+                origin = dto.origin
                 cookTime = dto.cookTime
                 servings = dto.servings
-                approved = true
+                approved = user.role == UserRole.ADMIN.name
                 this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
@@ -121,11 +124,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             existingRecipe.description = dto.description
             existingRecipe.instructions = dto.instructions.joinToString("\n")
             existingRecipe.updatedAt = LocalDateTime.now()
-            existingRecipe.mealType = dto.mealType.toDisplayName()
-            existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",") {
-                it.toDisplayName()
-            }
-            existingRecipe.origin = dto.origin.toDisplayName()
+            existingRecipe.mealType = dto.mealType
+            existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
+            existingRecipe.origin = dto.origin
             existingRecipe.cookTime = dto.cookTime
             existingRecipe.servings = dto.servings
 
@@ -171,33 +172,45 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         suspendTransaction {
             try {
                 val conditions = mutableListOf<Op<Boolean>>()
+                val userAlias = Users.alias("author")
+                val join = Recipes.innerJoin(userAlias, { Recipes.authorId }, { userAlias[Users.id] })
 
-                filter.query?.let { query ->
-                    conditions += (Recipes.name.lowerCase() like "%${query.lowercase()}%") or
-                            (Recipes.description.lowerCase() like "%${query.lowercase()}%")
+                filter.query?.takeIf { it.isNotBlank() }?.let { query ->
+                    val lowerQuery = "%${query.lowercase()}%"
+                    conditions += (Recipes.name.lowerCase() like lowerQuery) or
+                            (Recipes.description.lowerCase() like lowerQuery) or
+                            (userAlias[Users.name].lowerCase() like lowerQuery)
                 }
 
-                filter.origin?.let { origin ->
-                    conditions += Recipes.origin eq origin
+                filter.origin?.let {
+                    conditions += Recipes.origin eq it
                 }
 
-                filter.mealType?.let { mealType ->
-                    conditions += Recipes.mealType eq mealType
+                filter.mealType?.let {
+                    conditions += Recipes.mealType eq it
                 }
 
                 if (filter.dietaryRestrictions.isNotEmpty()) {
-                    conditions += Recipes.dietaryRestriction.lowerCase() like
-                            "%${filter.dietaryRestrictions.joinToString(",").lowercase()}%"
+                    val restrictions = filter.dietaryRestrictions.joinToString(",").lowercase()
+                    conditions += Recipes.dietaryRestriction.lowerCase() like "%$restrictions%"
                 }
 
-                filter.cookTime?.let { cookTime ->
-                    conditions += Recipes.cookTime lessEq cookTime
+                filter.cookTime?.let {
+                    conditions += Recipes.cookTime lessEq it
                 }
 
-                val queryOp = conditions.reduceOrNull { acc, op -> acc and op } ?: Op.TRUE
+                val queryOp = conditions.reduceOrNull(Op<Boolean>::or) ?: Op.TRUE
 
-                val recipes = RecipesEntity.find { queryOp }
-                    .limit(limit).offset(offset)
+                val recipes = filter.query?.let {
+                    join
+                        .select(Recipes.columns)
+                        .where{ queryOp }
+                        .limit(limit)
+                        .offset(offset)
+                        .map { RecipesEntity.wrapRow(it) }
+                } ?: RecipesEntity.find { queryOp }
+                    .limit(limit)
+                    .offset(offset)
                     .toList()
 
                 val sortedRecipes = when (filter.mostLiked) {
@@ -211,6 +224,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 Result.failure(e)
             }
         }
+
 
     override suspend fun likeRecipe(userId: String, recipeId: String): Result<Unit> = suspendTransaction {
         try {

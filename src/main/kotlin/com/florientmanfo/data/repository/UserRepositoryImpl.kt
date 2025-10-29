@@ -38,7 +38,7 @@ class UserRepositoryImpl(
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
             }
-            Result.success(generateToken(user.id.value).accessToken)
+            Result.success(generateToken(user.id.value, user.role).accessToken)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -55,7 +55,7 @@ class UserRepositoryImpl(
                     Login(
                         nextLink = nextLink,
                         activated = entity.activated,
-                        token = generateToken(entity.id.value)
+                        token = generateToken(entity.id.value, entity.role)
                     )
                 )
             } else {
@@ -74,7 +74,8 @@ class UserRepositoryImpl(
             val decodedJWT = verifier.verify(refreshToken)
 
             val userId = decodedJWT.getClaim("userId").asString()
-            Result.success(generateToken(userId))
+            val userRole = decodedJWT.getClaim("role").asString()
+            Result.success(generateToken(userId, userRole))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -116,7 +117,7 @@ class UserRepositoryImpl(
         return suspendTransaction {
             try {
                 val entity = UsersEntity.find { Users.email eq email }.firstOrNull()
-                val token = entity?.let { generateToken(it.id.value).accessToken }
+                val token = entity?.let { generateToken(it.id.value, it.role).accessToken }
                 Result.success(token)
             } catch (e: Exception) {
                 Result.failure(e)
@@ -247,12 +248,13 @@ class UserRepositoryImpl(
         }
     }
 
-    private fun generateToken(userId: String): Token {
+    private fun generateToken(userId: String, userRole: String): Token {
         val secret = config.property("ktor.jwt.secret").getString()
         val algorithm = Algorithm.HMAC256(secret)
 
         val accessToken = JWT.create()
             .withClaim("userId", userId)
+            .withClaim("role", userRole)
             .withExpiresAt(Date(System.currentTimeMillis() + TOKEN_VALIDITY))
             .sign(algorithm)
 

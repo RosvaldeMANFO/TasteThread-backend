@@ -104,7 +104,7 @@ fun Route.userRouting(service: UserService) {
 fun Route.protectedUserRouting(service: UserService) {
     route("/users") {
         get("/profile") {
-            val userId = retrieveAuthorId(call)
+            val userId = retrieveUserId(call)
             val result = service.getProfile(userId)
             val response = result.fold(
                 onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
@@ -114,7 +114,7 @@ fun Route.protectedUserRouting(service: UserService) {
         }
 
         post("/activate") {
-            val userId = retrieveAuthorId(call)
+            val userId = retrieveUserId(call)
             try {
                 val result = service.activateAccount(userId)
                 val response = result.fold(
@@ -130,7 +130,7 @@ fun Route.protectedUserRouting(service: UserService) {
         }
 
         post("/reset-password") {
-            val userId = retrieveAuthorId(call)
+            val userId = retrieveUserId(call)
             val newPassword = call.receive<String>()
             try {
                 val result = service.resetPassword(userId, newPassword)
@@ -147,7 +147,7 @@ fun Route.protectedUserRouting(service: UserService) {
         }
 
         put() {
-            val userId = retrieveAuthorId(call)
+            val userId = retrieveUserId(call)
             try {
                 val response = if (call.request.isMultipart()) {
                     multipart(call) { dto, image ->
@@ -174,7 +174,7 @@ fun Route.protectedUserRouting(service: UserService) {
         }
 
         delete() {
-            val userId = retrieveAuthorId(call)
+            val userId = retrieveUserId(call)
             try {
                 val result = service.deleteAccount(userId)
                 val response = result.fold(
