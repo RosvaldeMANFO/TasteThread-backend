@@ -1,1 +1,1 @@
-rootProject.name = "cook"
+rootProject.name = "tasteThread"
