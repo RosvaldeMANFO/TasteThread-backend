@@ -45,7 +45,7 @@ class EmailService(private val config: ApplicationConfig) {
             GsonFactory.getDefaultInstance(),
             HttpCredentialsAdapter(googleCredentials)
         )
-            .setApplicationName("Cook")
+            .setApplicationName("TasteThread")
             .build()
     }
 
@@ -61,7 +61,7 @@ class EmailService(private val config: ApplicationConfig) {
                 userName, activationLink
             ).trimIndent()
 
-            val subject = "Activate your account - Cook"
+            val subject = "Activate your account - TasteThread"
 
             val message = createGmailMessage(
                 recipientEmail = userEmail,
@@ -91,7 +91,7 @@ class EmailService(private val config: ApplicationConfig) {
                 userName, resetLink
             ).trimIndent()
 
-            val subject = "Password Reset Request - Cook"
+            val subject = "Password Reset Request - TasteThread"
 
             val message = createGmailMessage(
                 recipientEmail = userEmail,
