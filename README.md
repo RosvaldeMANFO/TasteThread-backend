@@ -1,104 +1,101 @@
-# Recipe Management API
+# TasteThread API
 
-This API allows you to manage recipes through CRUD operations (Create, Read, Update, Delete). Users can create an account, log in, obtain a JWT token to securely access protected resources, and interact with recipe-related functionalities. Some features are accessible without authentication.
+This API allows you to manage recipes through CRUD operations (Create, Read, Update, Delete). Users can create an account, log in, obtain a JWT token to securely access protected resources, and interact with recipe-related functionalities. Some features require authentication.
 
 ---
 
 ## Features
 
 ### User Management
-- **Create an Account**: Register a new user.
-- **Login**: Authenticate a user and retrieve a JWT token.
-- **JWT-Based Protection**: Secure access to protected resources using JSON Web Tokens.
+- \*Create an Account\*: Register a new user.
+- \*Login\*: Authenticate a user and retrieve a JWT token.
+- \*JWT-Based Protection\*: Secure access to protected resources using JSON Web Tokens.
 
 ### Recipe Management
-- **Accessible without Authentication**:
-    - View all recipes.
-    - Search for recipes by keywords.
-
-- **Requires Authentication**:
-    - Add a new recipe.
-    - Update an existing recipe.
-    - Delete a recipe.
-    - Like a recipe.
-    - Add a comment to a recipe.
+- Endpoints for creating, updating, deleting, liking and commenting recipes.
+- File upload support (multipart) for recipe images and user avatar updates.
 
 ---
 
 ## Prerequisites
 
-- **Java 21**.
-- Build tool (Gradle).
-- An environment set up for running Kotlin/Java applications.
-- A configuration file (`application.yaml`).
-- Postgresql with a database, you can run it from Docker.
-- Firebase project with a storage feature to upload an image.
+- Java 21
+- Gradle
+- PostgreSQL (can run from Docker)
+- A configuration file (`application.yaml`) in `resources`
+- Firebase project with storage for image uploads (service-account-key.json) if uploads are used
 
 ---
 
 ## Installation and Setup
 
-### Installation Steps
-
-1. **Clone the repository**:
+1. Clone the repository:
    ```bash
-   git clone https://github.com/RosvaldeMANFO/Cook.git
-   cd Cook
-   ```
+   git clone https://github.com/RosvaldeMANFO/TasteThread-backend.git
+   cd TasteThread-backend
+    ```
 
-2. **Configure the application**:
-    - Rename the `application.yaml.template` file located in the `resources` directory to `application.yaml`.
-    - Fill in the necessary fields (e.g., database information, JWT keys, etc.).
-    - Add the service-account-key.json of your firebase project from your GCP account to the ``resources`` folder   
-   
-![img.png](img.png)
+## Configure the application:
 
-3. **Build the project**:
-      ```bash
-      ./gradlew build
-      ```
+Rename application.yaml.template in resources to application.yaml.
+Fill in database, JWT, Firebase and other required fields.
+Add your Firebase service-account-key.json to the resources folder if using Firebase storage.
 
-4. **Run the application**:
-      ```bash
-      ./gradlew run
-      ```
-
----
-
-## Usage
-
-### Authentication
-- Secure routes require a **JWT token**. Retrieve it via the login endpoint.
-- Include the token in the `Authorization` header of your protected requests like so:
-  ```
-  Authorization: Bearer <your-jwt-token>
-  ```
-
-### Testing Endpoints
-A Postman collection is available to test the API endpoints. Use the following link to access it:
-[Postman Collection](https://www.postman.com/projetweb-7687/workspace/open-api/request/19898948-1c60b973-99d4-4e40-b61d-ade75d4eb64b?action=share&creator=19898948&ctx=documentation)
-
----
+1. Build the project:
+    ```bash
+    ./gradlew clean build
+    ```
+    
+2. Run the application:
+    ```bash
+    ./gradlew run
+    ```
 
 ## Key Endpoints
 
-### User Management
-- **POST** `/auth/register`: Register a new user.
-- **POST** `/auth/login`: Log in and retrieve a JWT token.
+### Auth
+- **POST** `/auth/login` : Log in and retrieve a JWT token.  
+- **POST** `/auth/refresh` : Refresh access token using a refresh token.
 
-### Recipes (no authentication required)
-- **GET** `/recipes`: Retrieve all recipes.
-- **GET** `/recipes/search`: Search for recipes using a keyword.
+### Users (public)
+- **POST** `/users/register` : Register a new user.  
+- **POST** `/users/request-password-reset` : Request password reset (body: email string).  
+- **POST** `/users/request-account-activation` : Request account activation email (body: email string).
 
-### Recipes (authentication required)
-- **POST** `/recipes`: Add a new recipe.
-- **PUT** `/recipes/{id}`: Update a recipe.
-- **DELETE** `/recipes/{id}`: Delete a recipe.
-- **POST** `/recipes/{id}/like`: Like a recipe.
-- **POST** `/recipes/{id}/comment`: Add a comment to a recipe.
+### Users (protected)
+- **GET** `/users/profile` : Get current user profile.  
+- **POST** `/users/activate` : Activate authenticated user's account.  
+- **POST** `/users/reset-password` : Reset password for authenticated user (body: new password string).  
+- **PUT** `/users` : Update account. Accepts JSON `UserDTO` or multipart with form field `dto` (JSON) and file field `image`.  
+- **DELETE** `/users` : Delete authenticated user's account.
+
+### Recipes (public / protected behavior shown in code)
+- **GET** `/recipes` : Retrieve recipes (query: `limit`, `offset`).  
+- **GET** `/recipes/{id}` : Retrieve recipe by id.  
+- **POST** `/recipes/search` : Search recipes (body: `FilterDTO`, query: `limit`, `offset`).
+
+### Recipes (protected)
+- **POST** `/recipes` : Create a recipe. Accepts JSON `RecipeDTO` or multipart with form field `recipe` (JSON) and file field `image`.  
+- **PUT** `/recipes/{id}` : Update a recipe. Accepts the same payloads as create.  
+- **DELETE** `/recipes/{id}` : Delete a recipe.  
+- **POST** `/recipes/like` : Like a recipe (body: recipe id string).  
+- **POST** `/recipes/comments` : Add a comment (body: `RecipeCommentDTO`).  
+- **GET** `/recipes/my` : Get recipes created by the authenticated user.
+
+### Admin (requires admin privileges)
+- **GET** `/admin/stats` : Retrieve admin stats.  
+- **POST** `/admin/approve/{id}` : Approve a recipe by id.  
+- **GET** `/admin/recipes` : List recipes for admin (query: `limit`, `offset`, `pending`).  
+- **POST** `/admin/search` : Search recipes as admin (body: `FilterDTO`, query: `limit`, `offset`, `pending`).
+
+---
+
+## Multipart field names
+- Recipe create/update multipart: form field `recipe` (JSON) and file field `image`.  
+- User update multipart: form field `dto` (JSON) and file field `image`.
 
 ---
 
 ## Notes
-
-Be sure to fill in all required fields in the `application.yaml` file to ensure the project functions correctly.
+- Ensure `application.yaml` is correctly populated and required service account keys are present in `resources`.  
+- For local development, you can use the Cloud SQL Auth Proxy to avoid using the Cloud SQL socket factory.
