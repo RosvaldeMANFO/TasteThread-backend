@@ -66,8 +66,8 @@ jobs:
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
           flags: |
-            --allow-unauthenticated
             --add-cloudsql-instances=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
+            --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
           env_vars: |
             CLOUD_SQL_CONNECTION_NAME=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
             DATABASE=${{ secrets.DATABASE }}
