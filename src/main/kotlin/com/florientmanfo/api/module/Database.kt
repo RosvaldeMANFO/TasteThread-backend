@@ -66,6 +66,7 @@ private fun createDatabase(config: ApplicationConfig, connectionName: String) {
             password = config.property("ktor.database.password").getString()
             maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
         }
+
         if(!connectionName.isBlank()){
             dbConfig.addDataSourceProperty("socketFactory", "com.google.cloud.sql.postgres.SocketFactory");
             dbConfig.addDataSourceProperty("cloudSqlInstance", connectionName);
