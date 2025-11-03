@@ -234,17 +234,19 @@ class UserRepositoryImpl(
     }
 
     override suspend fun deleteAccount(userId: String): Result<Unit> {
-        return try {
-            UsersEntity.find { Users.id eq userId }.firstOrNull()?.let {
-                it.imageUrl?.let { imageUrl ->
-                    firebase.deleteFile(it.id.value, BucketPath.USERS)
-                    it.imageUrl = null
-                }
-                it.delete()
-                Result.success(Unit)
-            } ?: Result.failure(Exception("User not found"))
-        } catch (e: Exception) {
-            Result.failure(e)
+        return suspendTransaction {
+            try {
+                UsersEntity.find { Users.id eq userId }.firstOrNull()?.let {
+                    it.imageUrl?.let { imageUrl ->
+                        firebase.deleteFile(it.id.value, BucketPath.USERS)
+                        it.imageUrl = null
+                    }
+                    it.delete()
+                    Result.success(Unit)
+                } ?: Result.failure(Exception("User not found"))
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
         }
     }
 
