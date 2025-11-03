@@ -72,7 +72,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 origin = dto.origin
                 cookTime = dto.cookTime
                 servings = dto.servings
-                approved = user.role == UserRole.ADMIN.name
+                approved = true
                 this.authorId = authorId
                 createdAt = LocalDateTime.now()
                 updatedAt = LocalDateTime.now()
