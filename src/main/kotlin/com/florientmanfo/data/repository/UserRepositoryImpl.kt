@@ -18,6 +18,7 @@ import io.ktor.server.config.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.jetbrains.exposed.v1.core.lowerCase
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDateTime
 import java.util.*
@@ -29,16 +30,21 @@ class UserRepositoryImpl(
 
     override suspend fun register(dto: RegisterDTO): Result<String> = suspendTransaction {
         try {
-            val user = UsersEntity.new(IDGenerator.generate(IDSuffix.USER)) {
-                email = dto.email
-                password = Password.hash(dto.password)
-                name = dto.username
-                activated = false
-                role = UserRole.USER.name
-                createdAt = LocalDateTime.now()
-                updatedAt = LocalDateTime.now()
+            val entity = UsersEntity.find { Users.email eq dto.email }.firstOrNull()
+            if (entity != null) {
+                Result.failure(Exception("Email already in use"))
+            } else {
+                val user = UsersEntity.new(IDGenerator.generate(IDSuffix.USER)) {
+                    email = dto.email.lowercase()
+                    password = Password.hash(dto.password)
+                    name = dto.username
+                    activated = false
+                    role = UserRole.USER.name
+                    createdAt = LocalDateTime.now()
+                    updatedAt = LocalDateTime.now()
+                }
+                Result.success(generateToken(user.id.value, user.role).accessToken)
             }
-            Result.success(generateToken(user.id.value, user.role).accessToken)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -46,7 +52,7 @@ class UserRepositoryImpl(
 
     override suspend fun login(dto: LoginDTO): Result<Login> = suspendTransaction {
         try {
-            val entity = UsersEntity.find { Users.email eq dto.email }.firstOrNull()
+            val entity = UsersEntity.find { Users.email eq dto.email.lowercase() }.firstOrNull()
             if (entity != null && Password.verify(dto.password, entity.password)) {
                 val nextLink = if (entity.role == UserRole.ADMIN.name)
                     config.property("ktor.admin.afterAuthLink").getString()
