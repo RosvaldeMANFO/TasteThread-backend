@@ -101,7 +101,7 @@ class EmailService(private val config: ApplicationConfig) {
                 htmlBody = htmlBodyContent
             )
 
-            gmail.users().messages().send(userEmail, message).execute()
+            gmail.users().messages().send(senderEmail, message).execute()
             Result.success(Unit)
         } catch (e: Exception) {
             e.printStackTrace()
