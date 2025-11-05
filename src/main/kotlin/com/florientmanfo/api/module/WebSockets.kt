@@ -12,8 +12,8 @@ val clients = CopyOnWriteArrayList<DefaultWebSocketServerSession>()
 
 fun Application.configureWebSockets() {
     install(WebSockets) {
-        pingPeriod = 60.seconds
-        timeout = 120.seconds
+        pingPeriod = 20.seconds
+        timeout = 40.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }
@@ -27,9 +27,6 @@ fun Route.webSocket() {
                 when(frame){
                     is Frame.Ping -> {
                         send(Frame.Pong(frame.data))
-                    }
-                    is Frame.Pong -> {
-                        send(Frame.Ping(frame.data))
                     }
                     is Frame.Close -> {
                         val reason = frame.readReason() ?: CloseReason(CloseReason.Codes.NORMAL, "Client closed")
