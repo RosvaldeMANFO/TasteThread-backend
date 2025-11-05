@@ -24,11 +24,19 @@ fun Route.webSocket() {
         clients.add(this)
         try {
             for (frame in incoming) {
-                if(frame is Frame.Ping){
-                    send(Frame.Pong(frame.data))
-                }
-                if(frame is Frame.Close) {
-                    break
+                when(frame){
+                    is Frame.Ping -> {
+                        send(Frame.Pong(frame.data))
+                    }
+                    is Frame.Pong -> {
+                        send(Frame.Ping(frame.data))
+                    }
+                    is Frame.Close -> {
+                        val reason = frame.readReason() ?: CloseReason(CloseReason.Codes.NORMAL, "Client closed")
+                        close(reason)
+                        break
+                    }
+                    else -> Unit
                 }
             }
         } finally {
