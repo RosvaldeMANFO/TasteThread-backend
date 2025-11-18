@@ -5,15 +5,14 @@ import io.ktor.server.routing.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.collections.remove
 import kotlin.time.Duration.Companion.seconds
 
 val clients = CopyOnWriteArrayList<DefaultWebSocketServerSession>()
 
 fun Application.configureWebSockets() {
     install(WebSockets) {
-        pingPeriod = 20.seconds
-        timeout = 40.seconds
+        pingPeriod = 10.seconds
+        timeout = 90.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }

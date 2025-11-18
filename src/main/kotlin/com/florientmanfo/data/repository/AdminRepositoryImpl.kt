@@ -2,6 +2,7 @@ package com.florientmanfo.com.florientmanfo.data.repository
 
 import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
 import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
+import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 import com.florientmanfo.com.florientmanfo.data.table.Recipes
 import com.florientmanfo.com.florientmanfo.data.table.Users
 import com.florientmanfo.com.florientmanfo.models.amdin.AdminRepository
@@ -40,9 +41,22 @@ class AdminRepositoryImpl(
         }
     }
 
+    override suspend fun deleteRecipe(recipeId: String): Result<Unit> {
+        return suspendTransaction {
+            try {
+                val recipe =
+                    RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
-    override suspend fun deleteRecipes(recipeId: String): Result<Unit> {
-        TODO("Not yet implemented")
+                if (recipe.imageUrl != null) {
+                    firebase.deleteFile(recipe.id.value, BucketPath.RECIPES)
+                }
+
+                recipe.delete()
+                Result.success(Unit)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
     }
 
 }
