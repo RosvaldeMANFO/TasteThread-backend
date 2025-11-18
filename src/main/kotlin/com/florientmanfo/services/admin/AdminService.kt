@@ -37,4 +37,8 @@ class AdminService(
             }
         }
     }
+
+    suspend fun deleteRecipe(recipeId: String): Result<Unit> {
+        return adminRepository.deleteRecipe(recipeId)
+    }
 }

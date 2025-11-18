@@ -72,6 +72,20 @@ fun Route.adminRouting(service: AdminService) {
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             }
         }
+
+        delete("/recipe/{id}") {
+            try {
+                val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
+                val result = service.deleteRecipe(id)
+                val response = result.fold(
+                    onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                )
+                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+            } catch (e: Exception){
+                handleException(e)
+            }
+        }
     }
 }
 
