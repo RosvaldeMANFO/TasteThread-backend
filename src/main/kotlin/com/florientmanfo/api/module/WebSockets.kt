@@ -11,8 +11,8 @@ val clients = CopyOnWriteArrayList<DefaultWebSocketServerSession>()
 
 fun Application.configureWebSockets() {
     install(WebSockets) {
-        pingPeriod = 10.seconds
-        timeout = 90.seconds
+        pingPeriod = 3600.seconds
+        timeout = 60.seconds
         maxFrameSize = Long.MAX_VALUE
         masking = false
     }

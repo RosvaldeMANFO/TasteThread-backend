@@ -12,6 +12,7 @@ import com.florientmanfo.com.florientmanfo.models.user.UserRole
 import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
 
 class AdminRepositoryImpl(
@@ -45,7 +46,7 @@ class AdminRepositoryImpl(
         return suspendTransaction {
             try {
                 val recipe =
-                    RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
+                    RecipesEntity.findById(recipeId) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
 
                 if (recipe.imageUrl != null) {
                     firebase.deleteFile(recipe.id.value, BucketPath.RECIPES)
