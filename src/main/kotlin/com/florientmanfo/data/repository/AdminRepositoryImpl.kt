@@ -43,6 +43,7 @@ class AdminRepositoryImpl(
 
     override suspend fun deleteRecipe(recipeId: String): Result<Unit> {
         return suspendTransaction {
+            println(recipeId)
             try {
                 val recipe =
                     RecipesEntity.findById(id) ?: return@suspendTransaction Result.failure(Exception("Recipe not found"))
