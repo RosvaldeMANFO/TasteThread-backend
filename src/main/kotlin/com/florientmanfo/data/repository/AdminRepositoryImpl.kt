@@ -52,8 +52,6 @@ class AdminRepositoryImpl(
                     firebase.deleteFile(recipe.id.value, BucketPath.RECIPES)
                 }
 
-                println("Deleting recipe with id: ${recipe.name}")
-
                 recipe.delete()
                 Result.success(Unit)
             } catch (e: Exception) {
