@@ -1,5 +1,7 @@
 package com.florientmanfo.com.florientmanfo.api.routing
 
+import com.florientmanfo.api.module.SocketMessage
+import com.florientmanfo.api.module.notifyAllClients
 import com.florientmanfo.com.florientmanfo.models.recipe.FilterDTO
 import com.florientmanfo.com.florientmanfo.services.admin.AdminService
 import com.florientmanfo.com.florientmanfo.utils.RequestResult
@@ -49,9 +51,7 @@ fun Route.adminRouting(service: AdminService) {
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<List<String>>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
         post("/search") {
@@ -67,22 +67,21 @@ fun Route.adminRouting(service: AdminService) {
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
         delete("/recipe/{id}") {
             try {
                 val id = call.parameters["id"] ?: throw IllegalArgumentException("Missing recipe ID")
-                val result = service.deleteRecipe(id)
+                val result = service.deleteRecipe( id)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
                     onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
                 )
+                notifyAllClients(SocketMessage.RECIPE_DELETED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 handleException(e)
             }
         }
