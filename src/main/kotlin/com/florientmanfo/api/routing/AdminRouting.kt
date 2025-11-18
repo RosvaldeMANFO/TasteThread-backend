@@ -89,7 +89,6 @@ fun Route.adminRouting(service: AdminService) {
 }
 
 private suspend fun RoutingContext.handleException(e: Exception) {
-    println(e)
     val result = Result.failure<String>(e)
     val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
     call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
