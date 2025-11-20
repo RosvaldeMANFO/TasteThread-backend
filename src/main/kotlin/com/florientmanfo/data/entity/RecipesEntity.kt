@@ -40,7 +40,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             course = course,
             description = description,
             dietaryRestrictions = dietaryRestriction.split(","),
-            country = origin,
+            origin = origin,
             cookTime = cookTime,
             servings = servings,
             ingredients = ingredients.map { it.toModel() },

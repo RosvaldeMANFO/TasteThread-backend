@@ -12,7 +12,7 @@ class RecipeModel(
     val course: String,
     val description: String,
     val dietaryRestrictions: List<String>,
-    val country: String,
+    val origin: String,
     val cookTime: Int,
     val servings: Int,
     val ingredients: List<IngredientModel>,
