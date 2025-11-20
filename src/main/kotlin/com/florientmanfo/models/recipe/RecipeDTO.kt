@@ -9,7 +9,7 @@ data class RecipeDTO(
     val imageUrl: String? = null,
     val ingredients: List<IngredientDTO>,
     val instructions: List<String>,
-    val mealType: String,
+    val course: String,
     val dietaryRestrictions: List<String>,
     val origin: String,
     val cookTime: Int,

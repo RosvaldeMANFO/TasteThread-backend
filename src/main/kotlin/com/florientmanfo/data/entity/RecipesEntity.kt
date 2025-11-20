@@ -17,7 +17,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var description by Recipes.description
     var imageUrl by Recipes.imageUrl
     var instructions by Recipes.instructions
-    var mealType by Recipes.mealType
+    var course by Recipes.course
     var dietaryRestriction by Recipes.dietaryRestriction
     var origin by Recipes.origin
     var cookTime by Recipes.cookTime
@@ -37,7 +37,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             name = name,
             author = author.toModel(),
             imageUrl = imageUrl,
-            mealType = mealType,
+            course = course,
             description = description,
             dietaryRestrictions = dietaryRestriction.split(","),
             country = origin,

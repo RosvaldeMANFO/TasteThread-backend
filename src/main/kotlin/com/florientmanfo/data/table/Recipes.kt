@@ -11,7 +11,7 @@ object Recipes : IdTable<String>("recipes") {
     val description = text("description")
     val imageUrl = varchar("image_path", 512).nullable()
     val instructions = text("instructions")
-    val mealType = varchar("meal_type", 50)
+    val course = varchar("course", 50).default("Europe")
     val dietaryRestriction = varchar("dietary_restriction", 50)
     val origin = varchar("origin", 50)
     val cookTime = integer("cook_time")

@@ -9,7 +9,7 @@ class RecipeModel(
     val name: String,
     val author: UserModel,
     val imageUrl: String?,
-    val mealType: String,
+    val course: String,
     val description: String,
     val dietaryRestrictions: List<String>,
     val country: String,
