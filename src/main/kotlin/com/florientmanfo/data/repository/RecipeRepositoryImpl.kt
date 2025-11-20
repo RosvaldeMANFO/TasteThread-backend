@@ -66,7 +66,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 description = dto.description
                 this.imageUrl = imageUrl
                 instructions = dto.instructions.joinToString("\n")
-                mealType = dto.mealType
+                course = dto.course
                 dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
                 origin = dto.origin
                 cookTime = dto.cookTime
@@ -123,7 +123,7 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             existingRecipe.description = dto.description
             existingRecipe.instructions = dto.instructions.joinToString("\n")
             existingRecipe.updatedAt = LocalDateTime.now()
-            existingRecipe.mealType = dto.mealType
+            existingRecipe.course = dto.course
             existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
             existingRecipe.origin = dto.origin
             existingRecipe.cookTime = dto.cookTime
@@ -185,8 +185,8 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                     conditions += Recipes.origin eq it
                 }
 
-                filter.mealType?.let {
-                    conditions += Recipes.mealType eq it
+                filter.course?.let {
+                    conditions += Recipes.course eq it
                 }
 
                 if (filter.dietaryRestrictions.isNotEmpty()) {

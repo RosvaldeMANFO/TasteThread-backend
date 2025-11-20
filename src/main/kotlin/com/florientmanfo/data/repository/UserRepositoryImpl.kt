@@ -143,7 +143,7 @@ class UserRepositoryImpl(
                         email = adminEmail
                         password = Password.hash(adminPassword)
                         name = adminName
-                        activated = false
+                        activated = true
                         role = UserRole.ADMIN.name
                         createdAt = LocalDateTime.now()
                         updatedAt = LocalDateTime.now()
@@ -268,6 +268,7 @@ class UserRepositoryImpl(
 
         val refreshToken = JWT.create()
             .withClaim("userId", userId)
+            .withClaim("role", userRole)
             .withExpiresAt(Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
             .sign(algorithm)
 

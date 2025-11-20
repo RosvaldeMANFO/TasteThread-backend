@@ -1,5 +1,7 @@
 package com.florientmanfo.com.florientmanfo.api.routing
 
+import com.florientmanfo.api.module.SocketMessage
+import com.florientmanfo.api.module.notifyAllClients
 import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
 import com.florientmanfo.com.florientmanfo.models.user.UserDTO
 import com.florientmanfo.com.florientmanfo.services.user.UserService
@@ -166,6 +168,7 @@ fun Route.protectedUserRouting(service: UserService) {
                     )
                 }
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                notifyAllClients(SocketMessage.RECIPE_UPDATED)
             } catch (e: Exception) {
                 val result = Result.failure<String>(e)
                 val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)

@@ -1,0 +1,1 @@
+ALTER TABLE recipes ADD course VARCHAR(50) DEFAULT 'Europe' NOT NULL;

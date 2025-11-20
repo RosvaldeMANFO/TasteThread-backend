@@ -68,5 +68,6 @@ enum class SocketMessage {
     RECIPE_UPDATED,
     RECIPE_DELETED,
     RECIPE_LIKED,
-    RECIPE_COMMENTED;
+    RECIPE_COMMENTED,
+    USER_UPDATED;
 }
