@@ -90,7 +90,8 @@ class UserRepositoryImpl(
     override suspend fun getProfile(userIdOrEmail: String): Result<UserModel> {
         return suspendTransaction {
             try {
-                val entity = UsersEntity.find { (Users.id eq userIdOrEmail) or  (Users.email eq userIdOrEmail) }.firstOrNull()
+                val entity =
+                    UsersEntity.find { (Users.id eq userIdOrEmail) or (Users.email eq userIdOrEmail) }.firstOrNull()
                 if (entity != null) {
                     Result.success(entity.toModel())
                 } else {
@@ -185,13 +186,13 @@ class UserRepositoryImpl(
                     imageFile?.let { newPhoto ->
                         entity.imageUrl?.let {
                             firebase.deleteFile(
-                                entity.id.value,
+                                it.split("/").last(),
                                 BucketPath.USERS
                             )
                         }
                         entity.imageUrl = firebase.uploadFile(
                             newPhoto,
-                            entity.id.value,
+                            IDGenerator.generate(IDSuffix.USER),
                             BucketPath.USERS
                         )
                     }
@@ -244,8 +245,7 @@ class UserRepositoryImpl(
             try {
                 UsersEntity.find { Users.id eq userId }.firstOrNull()?.let {
                     it.imageUrl?.let { imageUrl ->
-                        firebase.deleteFile(it.id.value, BucketPath.USERS)
-                        it.imageUrl = null
+                        firebase.deleteFile(imageUrl.split("/").last(), BucketPath.USERS)
                     }
                     it.delete()
                     Result.success(Unit)
