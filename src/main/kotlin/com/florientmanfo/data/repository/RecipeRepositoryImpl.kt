@@ -1,5 +1,6 @@
 package com.florientmanfo.com.florientmanfo.data.repository
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerators
 import com.florientmanfo.com.florientmanfo.data.entity.IngredientsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeCommentsEntity
 import com.florientmanfo.com.florientmanfo.data.entity.RecipeLikesEntity
@@ -56,9 +57,11 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
         try {
             val id = IDGenerator.generate(IDSuffix.RECIPE)
             val imageUrl = recipeImageFile?.let {
-                firebase.uploadFile(it, id, BucketPath.RECIPES)
+                val fileName = IDGenerator.generate(IDSuffix.RECIPE)
+                firebase.uploadFile(it, fileName, BucketPath.RECIPES)
             }
-            val user = UsersEntity.find { Users.id eq authorId }.firstOrNull()
+
+            UsersEntity.find { Users.id eq authorId }.firstOrNull()
                 ?: return@suspendTransaction Result.failure(IllegalStateException())
 
             val newRecipe = RecipesEntity.new(id) {
@@ -111,12 +114,13 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
             dto.imageUrl?.let {
                 existingRecipe.imageUrl = it
             } ?: existingRecipe.imageUrl?.let {
-                firebase.deleteFile(existingRecipe.id.value, BucketPath.RECIPES)
+                firebase.deleteFile(it.split("/").last(), BucketPath.RECIPES)
                 existingRecipe.imageUrl = null
             }
 
             recipeImageFile?.let {
-                existingRecipe.imageUrl = firebase.uploadFile(it, recipeId, BucketPath.RECIPES)
+                val fileName = IDGenerator.generate(IDSuffix.RECIPE)
+                existingRecipe.imageUrl = firebase.uploadFile(it, fileName, BucketPath.RECIPES)
             }
 
             existingRecipe.name = dto.name
@@ -156,8 +160,8 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 return@suspendTransaction Result.failure(Exception("Unauthorized access"))
             }
 
-            if (recipe.imageUrl != null) {
-                firebase.deleteFile(recipe.id.value, BucketPath.RECIPES)
+            recipe.imageUrl?.let {
+                firebase.deleteFile(it.split("/").last(), BucketPath.RECIPES)
             }
 
             recipe.delete()
