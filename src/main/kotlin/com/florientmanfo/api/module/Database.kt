@@ -1,7 +1,7 @@
-package com.florientmanfo.com.florientmanfo.api.module
+package com.florientmanfo.api.module
 
-import com.florientmanfo.com.florientmanfo.data.table.*
-import com.florientmanfo.com.florientmanfo.models.user.UserRepository
+import com.florientmanfo.data.table.*
+import com.florientmanfo.models.user.UserRepository
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import com.zaxxer.hikari.pool.HikariPool

@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.utils
+package com.florientmanfo.utils
 
 data class ValidationResult (
     val isValid: Boolean,

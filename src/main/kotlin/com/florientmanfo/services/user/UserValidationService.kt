@@ -1,6 +1,6 @@
-package com.florientmanfo.com.florientmanfo.services.user
+package com.florientmanfo.services.user
 
-import com.florientmanfo.com.florientmanfo.utils.ValidationResult
+import com.florientmanfo.utils.ValidationResult
 
 class UserValidationService {
     fun validateCredential(email: String, password: String): ValidationResult {

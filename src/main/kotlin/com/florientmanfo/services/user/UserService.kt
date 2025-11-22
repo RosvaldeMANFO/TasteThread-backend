@@ -1,13 +1,13 @@
-package com.florientmanfo.com.florientmanfo.services.user
+package com.florientmanfo.services.user
 
-import com.florientmanfo.com.florientmanfo.models.user.Login
-import com.florientmanfo.com.florientmanfo.models.user.LoginDTO
-import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
-import com.florientmanfo.com.florientmanfo.models.user.Token
-import com.florientmanfo.com.florientmanfo.models.user.UserDTO
-import com.florientmanfo.com.florientmanfo.models.user.UserModel
-import com.florientmanfo.com.florientmanfo.models.user.UserRepository
-import com.florientmanfo.com.florientmanfo.services.email.EmailService
+import com.florientmanfo.models.user.Login
+import com.florientmanfo.models.user.LoginDTO
+import com.florientmanfo.models.user.RegisterDTO
+import com.florientmanfo.models.user.Token
+import com.florientmanfo.models.user.UserDTO
+import com.florientmanfo.models.user.UserModel
+import com.florientmanfo.models.user.UserRepository
+import com.florientmanfo.services.email.EmailService
 import io.ktor.server.config.ApplicationConfig
 
 class UserService(
@@ -27,7 +27,7 @@ class UserService(
     suspend fun register(dto: RegisterDTO): Result<String> {
         val result = validation.validateCredential(dto.email, dto.password)
         if (result.isValid.not()) {
-            throw Exception(result.message)
+            return  Result.failure(Error())
         }
         return repository.register(dto).fold(
             onSuccess = { token ->
@@ -40,7 +40,7 @@ class UserService(
                     dto.username,
                     activationLink
                 )
-                Result.success("Check your email for account activation")
+                Result.success("")
             },
             onFailure = { Result.failure(it) }
         )
@@ -62,6 +62,9 @@ class UserService(
     }
 
     suspend fun requestPasswordReset(email: String): Result<String> {
+        if(email.isBlank()){
+            return Result.failure(Error())
+        }
         return repository.generateTokenFromEmail(email).fold(
             onFailure = { Result.failure(it) },
             onSuccess = {
@@ -110,7 +113,7 @@ class UserService(
     suspend fun resetPassword(userId: String, newPassword: String): Result<String> {
         val result = validation.validatePassword(newPassword)
         if (result.isValid.not()) {
-            throw Exception(result.message)
+            return Result.failure(Error())
         }
         return repository.resetPassword(userId, newPassword).fold(
             onSuccess = { Result.success("Password reset successfully") },
@@ -119,17 +122,17 @@ class UserService(
     }
 
     suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<UserModel> {
-        dto.password?.let {
-            val result = validation.validatePassword(it)
+        if(dto.password != null){
+            val result = validation.validatePassword(dto.password)
             if (result.isValid.not()) {
-                throw Exception(result.message)
+                return Result.failure(Error())
             }
         }
-        dto.name?.let {
-            if (it.isBlank()) {
-                throw Exception("Name cannot be empty")
-            }
+
+        if (dto.name.isNullOrBlank()) {
+            return Result.failure(Error())
         }
+
         return repository.updateUser(userId, dto, image).fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(it) }

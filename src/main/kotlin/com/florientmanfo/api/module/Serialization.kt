@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.api.module
+package com.florientmanfo.api.module
 
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*

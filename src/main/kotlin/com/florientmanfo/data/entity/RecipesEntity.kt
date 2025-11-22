@@ -1,11 +1,11 @@
-package com.florientmanfo.com.florientmanfo.data.entity
+package com.florientmanfo.data.entity
 
-import com.florientmanfo.com.florientmanfo.data.table.Ingredients
-import com.florientmanfo.com.florientmanfo.data.table.RecipeComments
-import com.florientmanfo.com.florientmanfo.data.table.RecipeLikes
-import com.florientmanfo.com.florientmanfo.data.table.Recipes
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
-import com.florientmanfo.com.florientmanfo.utils.toLong
+import com.florientmanfo.data.table.Ingredients
+import com.florientmanfo.data.table.RecipeComments
+import com.florientmanfo.data.table.RecipeLikes
+import com.florientmanfo.data.table.Recipes
+import com.florientmanfo.models.recipe.RecipeModel
+import com.florientmanfo.utils.toLong
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.Entity
 import org.jetbrains.exposed.v1.dao.EntityClass

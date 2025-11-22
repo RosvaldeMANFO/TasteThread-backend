@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.utils
+package com.florientmanfo.utils
 
 import org.mindrot.jbcrypt.BCrypt
 

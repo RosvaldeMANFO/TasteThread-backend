@@ -1,9 +1,9 @@
-package com.florientmanfo.com.florientmanfo.api.routing
+package com.florientmanfo.api.routing
 
 import com.florientmanfo.api.module.webSocket
-import com.florientmanfo.com.florientmanfo.services.admin.AdminService
-import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
-import com.florientmanfo.com.florientmanfo.services.user.UserService
+import com.florientmanfo.services.admin.AdminService
+import com.florientmanfo.services.recipe.RecipeService
+import com.florientmanfo.services.user.UserService
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*

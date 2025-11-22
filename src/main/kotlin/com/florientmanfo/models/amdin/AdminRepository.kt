@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.amdin
+package com.florientmanfo.models.amdin
 
 interface AdminRepository {
     suspend fun getStats(): Result<StatsModel>

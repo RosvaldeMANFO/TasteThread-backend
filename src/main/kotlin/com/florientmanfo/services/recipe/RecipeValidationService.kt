@@ -1,9 +1,9 @@
-package com.florientmanfo.com.florientmanfo.services.recipe
+package com.florientmanfo.services.recipe
 
 
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
-import com.florientmanfo.com.florientmanfo.utils.ValidationResult
+import com.florientmanfo.models.recipe.RecipeCommentDTO
+import com.florientmanfo.models.recipe.RecipeDTO
+import com.florientmanfo.utils.ValidationResult
 
 class RecipeValidationService {
     fun validateRecipe(recipe: RecipeDTO): ValidationResult {

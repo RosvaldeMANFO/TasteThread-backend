@@ -1,9 +1,9 @@
-package com.florientmanfo.com.florientmanfo.data.repository
+package com.florientmanfo.data.repository
 
-import com.florientmanfo.com.florientmanfo.models.amdin.AdminRepository
-import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeRepository
-import com.florientmanfo.com.florientmanfo.models.user.UserRepository
+import com.florientmanfo.models.amdin.AdminRepository
+import com.florientmanfo.models.firebase.FirebaseRepository
+import com.florientmanfo.models.recipe.RecipeRepository
+import com.florientmanfo.models.user.UserRepository
 import org.koin.dsl.module
 
 val repositoryModule = module {

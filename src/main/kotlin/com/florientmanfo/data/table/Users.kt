@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.data.table
+package com.florientmanfo.data.table
 
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.javatime.CurrentDateTime

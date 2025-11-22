@@ -1,6 +1,6 @@
-package com.florientmanfo.com.florientmanfo.data.repository
+package com.florientmanfo.data.repository
 
-import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
+import com.florientmanfo.models.firebase.FirebaseRepository
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.StorageOptions
 import com.google.cloud.storage.Blob

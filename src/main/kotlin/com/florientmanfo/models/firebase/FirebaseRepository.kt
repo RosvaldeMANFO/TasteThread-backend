@@ -1,6 +1,6 @@
-package com.florientmanfo.com.florientmanfo.models.firebase
+package com.florientmanfo.models.firebase
 
-import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
+import com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
 
 interface FirebaseRepository {
     fun uploadFile(fileData: ByteArray, fileName: String?, path: BucketPath): String

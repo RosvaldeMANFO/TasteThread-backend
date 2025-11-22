@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.api.routing
+package com.florientmanfo.api.routing
 
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.response.respond

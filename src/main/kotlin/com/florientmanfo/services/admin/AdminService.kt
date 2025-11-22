@@ -1,10 +1,10 @@
-package com.florientmanfo.com.florientmanfo.services.admin
+package com.florientmanfo.services.admin
 
-import com.florientmanfo.com.florientmanfo.models.amdin.AdminRepository
-import com.florientmanfo.com.florientmanfo.models.amdin.StatsModel
-import com.florientmanfo.com.florientmanfo.models.recipe.FilterDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeModel
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeRepository
+import com.florientmanfo.models.amdin.AdminRepository
+import com.florientmanfo.models.amdin.StatsModel
+import com.florientmanfo.models.recipe.FilterDTO
+import com.florientmanfo.models.recipe.RecipeModel
+import com.florientmanfo.models.recipe.RecipeRepository
 
 class AdminService(
     private val adminRepository: AdminRepository,
