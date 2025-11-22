@@ -29,6 +29,9 @@ class UserService(
         if (result.isValid.not()) {
             return  Result.failure(Error())
         }
+        if( dto.username.length < 5 ) {
+            return Result.failure(Error())
+        }
         return repository.register(dto).fold(
             onSuccess = { token ->
                 val host = config.property("ktor.cors.host").getString()
@@ -122,15 +125,17 @@ class UserService(
     }
 
     suspend fun updateAccount(userId: String, dto: UserDTO, image: ByteArray? = null): Result<UserModel> {
-        if(dto.password != null){
+        dto.password?.let {
             val result = validation.validatePassword(dto.password)
             if (result.isValid.not()) {
                 return Result.failure(Error())
             }
         }
 
-        if (dto.name.isNullOrBlank()) {
-            return Result.failure(Error())
+        dto.name?.let {
+            if (it.length < 5) {
+                return Result.failure(Error())
+            }
         }
 
         return repository.updateUser(userId, dto, image).fold(
