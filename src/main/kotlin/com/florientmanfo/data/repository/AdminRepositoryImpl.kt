@@ -1,15 +1,15 @@
-package com.florientmanfo.com.florientmanfo.data.repository
+package com.florientmanfo.data.repository
 
-import com.florientmanfo.com.florientmanfo.data.entity.RecipesEntity
-import com.florientmanfo.com.florientmanfo.data.entity.UsersEntity
-import com.florientmanfo.com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
-import com.florientmanfo.com.florientmanfo.data.table.Recipes
-import com.florientmanfo.com.florientmanfo.data.table.Users
-import com.florientmanfo.com.florientmanfo.models.amdin.AdminRepository
-import com.florientmanfo.com.florientmanfo.models.amdin.StatsModel
-import com.florientmanfo.com.florientmanfo.models.firebase.FirebaseRepository
-import com.florientmanfo.com.florientmanfo.models.user.UserRole
-import com.florientmanfo.com.florientmanfo.utils.suspendTransaction
+import com.florientmanfo.data.entity.RecipesEntity
+import com.florientmanfo.data.entity.UsersEntity
+import com.florientmanfo.data.repository.FirebaseRepositoryImpl.Companion.BucketPath
+import com.florientmanfo.data.table.Recipes
+import com.florientmanfo.data.table.Users
+import com.florientmanfo.models.amdin.AdminRepository
+import com.florientmanfo.models.amdin.StatsModel
+import com.florientmanfo.models.firebase.FirebaseRepository
+import com.florientmanfo.models.user.UserRole
+import com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.dao.id.EntityID

@@ -1,18 +1,17 @@
-package com.florientmanfo.com.florientmanfo.api.routing
+package com.florientmanfo.api.routing
 
 import com.florientmanfo.api.module.SocketMessage
 import com.florientmanfo.api.module.notifyAllClients
-import com.florientmanfo.com.florientmanfo.models.user.RegisterDTO
-import com.florientmanfo.com.florientmanfo.models.user.UserDTO
-import com.florientmanfo.com.florientmanfo.services.user.UserService
-import com.florientmanfo.com.florientmanfo.utils.RequestResult
+import com.florientmanfo.models.user.RegisterDTO
+import com.florientmanfo.models.user.UserDTO
+import com.florientmanfo.services.user.UserService
+import com.florientmanfo.utils.RequestResult
+import com.florientmanfo.utils.handleException
 import io.ktor.http.*
-import io.ktor.http.content.PartData
-import io.ktor.http.content.forEachPart
-import io.ktor.http.content.streamProvider
-import io.ktor.server.application.ApplicationCall
+import io.ktor.http.content.*
+import io.ktor.server.application.*
 import io.ktor.server.request.*
-import io.ktor.server.response.respond
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
@@ -59,13 +58,11 @@ fun Route.userRouting(service: UserService) {
                 val result = service.register(dto)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -75,13 +72,11 @@ fun Route.userRouting(service: UserService) {
                 val result = service.requestPasswordReset(email)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -91,13 +86,11 @@ fun Route.userRouting(service: UserService) {
                 val result = service.requestAccountActivation(email)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
     }
@@ -110,7 +103,7 @@ fun Route.protectedUserRouting(service: UserService) {
             val result = service.getProfile(userId)
             val response = result.fold(
                 onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
             )
             call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
         }
@@ -121,13 +114,11 @@ fun Route.protectedUserRouting(service: UserService) {
                 val result = service.activateAccount(userId)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -138,13 +129,11 @@ fun Route.protectedUserRouting(service: UserService) {
                 val result = service.resetPassword(userId, newPassword)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -156,7 +145,7 @@ fun Route.protectedUserRouting(service: UserService) {
                         val result = service.updateAccount(userId, dto, image)
                         result.fold(
                             onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                         )
                     }
                 } else {
@@ -164,15 +153,13 @@ fun Route.protectedUserRouting(service: UserService) {
                     val result = service.updateAccount(userId, dto)
                     result.fold(
                         onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                     )
                 }
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
                 notifyAllClients(SocketMessage.RECIPE_UPDATED)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -182,13 +169,11 @@ fun Route.protectedUserRouting(service: UserService) {
                 val result = service.deleteAccount(userId)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
     }

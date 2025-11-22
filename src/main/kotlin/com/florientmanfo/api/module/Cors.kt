@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.api.module
+package com.florientmanfo.api.module
 
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod

@@ -1,10 +1,10 @@
-package com.florientmanfo.com.florientmanfo.services
+package com.florientmanfo.services
 
-import com.florientmanfo.com.florientmanfo.services.admin.AdminService
-import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
-import com.florientmanfo.com.florientmanfo.services.recipe.RecipeValidationService
-import com.florientmanfo.com.florientmanfo.services.user.UserService
-import com.florientmanfo.com.florientmanfo.services.user.UserValidationService
+import com.florientmanfo.services.admin.AdminService
+import com.florientmanfo.services.recipe.RecipeService
+import com.florientmanfo.services.recipe.RecipeValidationService
+import com.florientmanfo.services.user.UserService
+import com.florientmanfo.services.user.UserValidationService
 import org.koin.dsl.module
 
 val serviceModule = module {

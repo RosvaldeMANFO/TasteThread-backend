@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.services.email
+package com.florientmanfo.services.email
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.json.gson.GsonFactory

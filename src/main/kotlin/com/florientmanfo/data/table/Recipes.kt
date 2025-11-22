@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.data.table
+package com.florientmanfo.data.table
 
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.IdTable

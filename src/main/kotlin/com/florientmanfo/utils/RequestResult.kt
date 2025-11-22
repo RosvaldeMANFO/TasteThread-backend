@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.utils
+package com.florientmanfo.utils
 
 import io.ktor.http.*
 import kotlinx.serialization.Serializable

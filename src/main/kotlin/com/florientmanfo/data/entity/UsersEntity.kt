@@ -1,9 +1,9 @@
-package com.florientmanfo.com.florientmanfo.data.entity
+package com.florientmanfo.data.entity
 
-import com.florientmanfo.com.florientmanfo.data.table.Users
-import com.florientmanfo.com.florientmanfo.models.user.UserModel
-import com.florientmanfo.com.florientmanfo.models.user.UserRole
-import com.florientmanfo.com.florientmanfo.utils.toLong
+import com.florientmanfo.data.table.Users
+import com.florientmanfo.models.user.UserModel
+import com.florientmanfo.models.user.UserRole
+import com.florientmanfo.utils.toLong
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.Entity
 import org.jetbrains.exposed.v1.dao.EntityClass

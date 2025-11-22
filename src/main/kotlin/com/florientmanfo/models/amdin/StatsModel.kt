@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.amdin
+package com.florientmanfo.models.amdin
 
 import kotlinx.serialization.Serializable
 

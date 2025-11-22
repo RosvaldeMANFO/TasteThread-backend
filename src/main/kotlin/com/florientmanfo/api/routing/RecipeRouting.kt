@@ -1,12 +1,13 @@
-package com.florientmanfo.com.florientmanfo.api.routing
+package com.florientmanfo.api.routing
 
 import com.florientmanfo.api.module.SocketMessage
 import com.florientmanfo.api.module.notifyAllClients
-import com.florientmanfo.com.florientmanfo.models.recipe.FilterDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeCommentDTO
-import com.florientmanfo.com.florientmanfo.models.recipe.RecipeDTO
-import com.florientmanfo.com.florientmanfo.services.recipe.RecipeService
-import com.florientmanfo.com.florientmanfo.utils.RequestResult
+import com.florientmanfo.models.recipe.FilterDTO
+import com.florientmanfo.models.recipe.RecipeCommentDTO
+import com.florientmanfo.models.recipe.RecipeDTO
+import com.florientmanfo.services.recipe.RecipeService
+import com.florientmanfo.utils.RequestResult
+import com.florientmanfo.utils.handleException
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -59,13 +60,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.getAllRecipes(limit, offset)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<List<String>>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -75,13 +74,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.getRecipe(id)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -93,13 +90,11 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.findRecipes(query, limit, offset)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
         post {
@@ -110,7 +105,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         val result = service.createRecipe(authorId, dto, image)
                         result.fold(
                             onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
-                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                         )
                     }
                 } else {
@@ -118,16 +113,13 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     val result = service.createRecipe(authorId, dto)
                     result.fold(
                         onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
-                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                     )
                 }
                 notifyAllClients(SocketMessage.RECIPE_CREATED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                e.printStackTrace()
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -140,7 +132,7 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                         val result = service.updateRecipe(id, authorId, dto, image)
                         result.fold(
                             onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                            onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                         )
                     }
                 } else {
@@ -148,15 +140,13 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                     val result = service.updateRecipe(id, authorId, dto)
                     result.fold(
                         onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                        onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                     )
                 }
                 notifyAllClients(SocketMessage.RECIPE_UPDATED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -167,14 +157,12 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.deleteRecipe(authorId, id)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 notifyAllClients(SocketMessage.RECIPE_DELETED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -185,14 +173,12 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.likeRecipe(userId, recipeId)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 notifyAllClients(SocketMessage.RECIPE_LIKED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -203,14 +189,12 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.commentRecipe(userId, commentDTO)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.Created) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
                 notifyAllClients(SocketMessage.RECIPE_COMMENTED)
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
 
@@ -223,14 +207,12 @@ fun Route.protectedRecipeRouting(service: RecipeService) {
                 val result = service.getMyRecipes(userId, limit, offset)
                 val response = result.fold(
                     onSuccess = { RequestResult.formatResult(result, HttpStatusCode.OK) },
-                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.InternalServerError) }
+                    onFailure = { RequestResult.formatResult(result, HttpStatusCode.BadRequest) }
                 )
 
                 call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
             } catch (e: Exception) {
-                val result = Result.failure<String>(e)
-                val response = RequestResult.formatResult(result, HttpStatusCode.BadRequest)
-                call.respond(HttpStatusCode.fromValue(response.httpStatus), response)
+                handleException(e)
             }
         }
     }

@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.api.module
+package com.florientmanfo.api.module
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm

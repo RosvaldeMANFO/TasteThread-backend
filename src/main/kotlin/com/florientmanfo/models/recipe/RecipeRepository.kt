@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.recipe
+package com.florientmanfo.models.recipe
 
 interface RecipeRepository {
     suspend fun getAllRecipes(limit: Int = 20, offset: Long = 0): Result<List<RecipeModel>>

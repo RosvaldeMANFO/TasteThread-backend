@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.user
+package com.florientmanfo.models.user
 
 interface UserRepository {
     suspend fun register(dto: RegisterDTO): Result<String>

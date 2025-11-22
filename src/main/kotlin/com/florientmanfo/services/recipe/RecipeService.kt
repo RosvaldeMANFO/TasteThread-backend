@@ -1,7 +1,7 @@
-package com.florientmanfo.com.florientmanfo.services.recipe
+package com.florientmanfo.services.recipe
 
-import com.florientmanfo.com.florientmanfo.models.recipe.*
-import com.florientmanfo.com.florientmanfo.models.user.UserRole
+import com.florientmanfo.models.recipe.*
+import com.florientmanfo.models.user.UserRole
 
 class RecipeService(
     private val repository: RecipeRepository,

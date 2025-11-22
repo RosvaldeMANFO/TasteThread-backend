@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.recipe
+package com.florientmanfo.models.recipe
 
 import kotlinx.serialization.Serializable
 

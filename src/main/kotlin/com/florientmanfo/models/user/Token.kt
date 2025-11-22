@@ -1,4 +1,4 @@
-package com.florientmanfo.com.florientmanfo.models.user
+package com.florientmanfo.models.user
 
 import kotlinx.serialization.Serializable
 
