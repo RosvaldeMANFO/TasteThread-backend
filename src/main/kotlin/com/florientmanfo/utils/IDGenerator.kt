@@ -3,7 +3,7 @@ package com.florientmanfo.utils
 import java.util.*
 
 object IDGenerator {
-    private const val UID_PREFIX = "COOK"
+    private const val UID_PREFIX = "TasteThread"
 
     fun generate(suffix: IDSuffix): String {
         val uuid = UUID.randomUUID().toString()
