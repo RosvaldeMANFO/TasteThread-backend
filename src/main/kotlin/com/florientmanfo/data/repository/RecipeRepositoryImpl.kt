@@ -19,6 +19,7 @@ import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.lessEq
 import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
 import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.isNullOrEmpty
 import org.jetbrains.exposed.v1.jdbc.select
 import java.time.LocalDateTime
 
@@ -196,6 +197,9 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 if (filter.dietaryRestrictions.isNotEmpty()) {
                     val restrictions = filter.dietaryRestrictions.joinToString(",").lowercase()
                     conditions += Recipes.dietaryRestriction.lowerCase() like "%$restrictions%"
+                    if(filter.dietaryRestrictions.contains("None") || filter.dietaryRestrictions.contains("Aucun")) {
+                        conditions += Recipes.dietaryRestriction.isNullOrEmpty()
+                    }
                 }
 
                 filter.cookTime?.let {
