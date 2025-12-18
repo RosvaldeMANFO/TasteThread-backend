@@ -9,8 +9,8 @@ ktor:
     database:
         driver:
         connectionName: ""
-        url:
-        name:
+        localUrl:
+        supabaseUrl:
         user:
         password:
         maximumPoolSize: 10
