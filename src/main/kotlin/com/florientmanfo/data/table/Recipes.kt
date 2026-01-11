@@ -10,7 +10,6 @@ object Recipes : IdTable<String>("recipes") {
     val name = varchar("name", 255)
     val description = text("description")
     val imageUrl = varchar("image_path", 512).nullable()
-    val instructions = text("instructions")
     val course = varchar("course", 50).default("Europe")
     val dietaryRestriction = varchar("dietary_restriction", 50)
     val origin = varchar("origin", 50)
@@ -21,4 +20,8 @@ object Recipes : IdTable<String>("recipes") {
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
     override val primaryKey = PrimaryKey(id)
+
+    init {
+        uniqueIndex(name, authorId)
+    }
 }
