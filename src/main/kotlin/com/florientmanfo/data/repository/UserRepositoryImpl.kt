@@ -12,13 +12,13 @@ import com.florientmanfo.models.user.*
 import com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.utils.IDSuffix
 import com.florientmanfo.utils.Password
-import com.florientmanfo.utils.suspendTransaction
 import org.jetbrains.exposed.v1.core.or
 import io.ktor.server.config.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.jetbrains.exposed.v1.core.lowerCase
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import java.time.LocalDateTime
 import java.util.*
