@@ -1,6 +1,6 @@
 package com.florientmanfo.data.repository
 
-import com.fasterxml.jackson.annotation.ObjectIdGenerators
+import com.florientmanfo.data.entity.InstructionsEntity
 import com.florientmanfo.data.entity.IngredientsEntity
 import com.florientmanfo.data.entity.RecipeCommentsEntity
 import com.florientmanfo.data.entity.RecipeLikesEntity
@@ -14,13 +14,9 @@ import com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.models.recipe.*
 import com.florientmanfo.utils.IDGenerator
 import com.florientmanfo.utils.IDSuffix
-import com.florientmanfo.utils.suspendTransaction
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.lessEq
-import org.jetbrains.exposed.v1.core.SqlExpressionBuilder.like
-import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
-import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.isNullOrEmpty
 import org.jetbrains.exposed.v1.jdbc.select
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import java.time.LocalDateTime
 
 class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRepository {
@@ -69,7 +65,6 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                 name = dto.name
                 description = dto.description
                 this.imageUrl = imageUrl
-                instructions = dto.instructions.joinToString("\n")
                 course = dto.course
                 dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
                 origin = dto.origin
@@ -89,6 +84,15 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                     recipeId = newRecipe.id.value
                     createdAt = LocalDateTime.now()
                     updatedAt = LocalDateTime.now()
+                }
+            }
+
+            dto.instructions.forEach {
+                instruction ->
+                InstructionsEntity.new(IDGenerator.generate(IDSuffix.INSTRUCTION)) {
+                    this.description = instruction
+                    recipeId = newRecipe.id.value
+                    createdAt = LocalDateTime.now()
                 }
             }
 
@@ -126,7 +130,6 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
 
             existingRecipe.name = dto.name
             existingRecipe.description = dto.description
-            existingRecipe.instructions = dto.instructions.joinToString("\n")
             existingRecipe.updatedAt = LocalDateTime.now()
             existingRecipe.course = dto.course
             existingRecipe.dietaryRestriction = dto.dietaryRestrictions.joinToString(",")
@@ -143,6 +146,15 @@ class RecipeRepositoryImpl(private val firebase: FirebaseRepository) : RecipeRep
                     this.recipeId = recipeId
                     createdAt = LocalDateTime.now()
                     updatedAt = LocalDateTime.now()
+                }
+            }
+
+            existingRecipe.instructions.forEach { it.delete() }
+            dto.instructions.forEach { instruction ->
+                InstructionsEntity.new(IDGenerator.generate(IDSuffix.INSTRUCTION)) {
+                    this.description = instruction
+                    this.recipeId = recipeId
+                    createdAt = LocalDateTime.now()
                 }
             }
 
