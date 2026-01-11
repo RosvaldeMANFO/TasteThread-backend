@@ -1,19 +1,18 @@
 package com.florientmanfo.data.table
 
+import com.florientmanfo.data.table.Recipes
 import org.jetbrains.exposed.v1.core.ReferenceOption
 import org.jetbrains.exposed.v1.core.dao.id.IdTable
 import org.jetbrains.exposed.v1.javatime.CurrentDateTime
 import org.jetbrains.exposed.v1.javatime.datetime
 
-object RecipeComments: IdTable<String>("recipe_comments") {
+object Instructions: IdTable<String>("cooking_instructions") {
     override val id = varchar("id", 255).entityId()
+    val description = text("description")
     val recipeId = varchar("recipe_id", 255).references(Recipes.id, onDelete = ReferenceOption.CASCADE)
-    val authorId = varchar("author_id", 255).references(Users.id, onDelete = ReferenceOption.CASCADE)
-    val content = text("content")
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
-    override val primaryKey = PrimaryKey(id)
 
     init {
-        uniqueIndex(recipeId, authorId)
+        uniqueIndex(recipeId, description)
     }
 }
