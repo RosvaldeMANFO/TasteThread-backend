@@ -18,6 +18,6 @@ object Ingredients : IdTable<String>("ingredients") {
     override val primaryKey = PrimaryKey(id)
 
     init {
-        uniqueIndex("idx_recipe_ingredient_unique", recipeId, name)
+        uniqueIndex( recipeId, name)
     }
 }

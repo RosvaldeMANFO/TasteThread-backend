@@ -82,6 +82,7 @@ fun generateMigration(): String? {
         Recipes,
         Ingredients,
         RecipeLikes,
+        Instructions,
         RecipeComments
     )
 

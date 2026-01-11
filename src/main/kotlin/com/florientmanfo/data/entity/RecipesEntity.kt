@@ -1,5 +1,6 @@
 package com.florientmanfo.data.entity
 
+import com.florientmanfo.data.table.Instructions
 import com.florientmanfo.data.table.Ingredients
 import com.florientmanfo.data.table.RecipeComments
 import com.florientmanfo.data.table.RecipeLikes
@@ -16,7 +17,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var name by Recipes.name
     var description by Recipes.description
     var imageUrl by Recipes.imageUrl
-    var instructions by Recipes.instructions
+    val instructions by InstructionsEntity.referrersOn(Instructions.recipeId, true)
     var course by Recipes.course
     var dietaryRestriction by Recipes.dietaryRestriction
     var origin by Recipes.origin
@@ -44,7 +45,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
             cookTime = cookTime,
             servings = servings,
             ingredients = ingredients.map { it.toModel() },
-            instructions = instructions.split("\n"),
+            instructions = instructions.map { it.description },
             comments = comments.sortedByDescending { it.createdAt }.map { it.toModel() },
             likes = likes.map { it.toModel() },
             approved = approved,
