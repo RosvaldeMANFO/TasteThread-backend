@@ -9,11 +9,10 @@ import com.florientmanfo.models.amdin.AdminRepository
 import com.florientmanfo.models.amdin.StatsModel
 import com.florientmanfo.models.firebase.FirebaseRepository
 import com.florientmanfo.models.user.UserRole
-import com.florientmanfo.utils.suspendTransaction
 import io.ktor.server.config.*
 import org.jetbrains.exposed.v1.core.and
-import org.jetbrains.exposed.v1.core.dao.id.EntityID
-import org.jetbrains.exposed.v1.core.statements.UpsertSqlExpressionBuilder.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
+import org.jetbrains.exposed.v1.core.*
 
 class AdminRepositoryImpl(
     private val config: ApplicationConfig,

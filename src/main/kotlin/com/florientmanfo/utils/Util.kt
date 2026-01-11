@@ -13,10 +13,8 @@ enum class IDSuffix {
     INGREDIENT,
     USER,
     COMMENT,
+    INSTRUCTION
 }
-
-suspend fun <T> suspendTransaction(block: Transaction.() -> T): T =
-    newSuspendedTransaction(Dispatchers.IO, statement = block)
 
 fun LocalDateTime.toLong() = this.toInstant(java.time.ZoneOffset.UTC).toEpochMilli()
 
