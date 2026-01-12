@@ -70,7 +70,6 @@ jobs:
           flags: |
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
           env_vars: |
-            DATABASE=${{ secrets.DATABASE }}
             DATABASE_USER=${{ secrets.DATABASE_USER }}
             DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
