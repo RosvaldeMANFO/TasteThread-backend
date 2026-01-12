@@ -68,7 +68,6 @@ jobs:
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
           flags: |
-            --add-cloudsql-instances=${{ vars.CLOUD_SQL_CONNECTION_NAME }}
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
           env_vars: |
             DATABASE=${{ secrets.DATABASE }}
