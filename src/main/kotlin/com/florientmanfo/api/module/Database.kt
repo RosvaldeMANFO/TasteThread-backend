@@ -29,6 +29,8 @@ fun Application.configureDatabase() {
         } else {
             config.property("ktor.database.localUrl").getString()
         }
+
+        addDataSourceProperty("prepareThreshold", "0")
     }
 
     try {
@@ -55,7 +57,7 @@ private fun runMigrations(dataSource: HikariDataSource) {
     val flyway = Flyway.configure()
         .dataSource(dataSource)
         .locations("classpath:db/migration")
-        .validateOnMigrate(false)
+        .validateOnMigrate(true)
         .validateMigrationNaming(true)
         .cleanDisabled(true)
         .load()
