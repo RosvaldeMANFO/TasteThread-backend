@@ -67,11 +67,7 @@ jobs:
           service: ${{ vars.REPOSITORY }}-backend
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
-          flags: >
-            --allow-unauthenticated
-            --cpu=2
-            --memory=1Gi
-            --concurrency=10
+          flags: |
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
           env_vars: |
             DATABASE_USER=${{ secrets.DATABASE_USER }}
@@ -80,3 +76,4 @@ jobs:
             FIREBASE_BUCKET=${{ vars.FIREBASE_BUCKET }}
             EMAIL_ADDRESS=${{ vars.EMAIL_ADDRESS }}
             APP_NAME=${{ vars.APP_NAME }}
+            PORT=${{ vars.PORT }}
