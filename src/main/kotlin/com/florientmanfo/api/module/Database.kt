@@ -23,14 +23,14 @@ fun Application.configureDatabase() {
     val dbConfig = HikariConfig().apply {
         username = config.property("ktor.database.user").getString()
         password = config.property("ktor.database.password").getString()
-        maximumPoolSize = config.property("ktor.database.maximumPoolSize").getString().toInt()
-
         jdbcUrl = if (env == "prod") {
-            val supabaseUrl = config.property("ktor.database.supabaseUrl").getString()
-            String.format(supabaseUrl, password)
+            val templateUrl = config.property("ktor.database.supabaseUrl").getString()
+            String.format(templateUrl, password)
         } else {
             config.property("ktor.database.localUrl").getString()
         }
+
+        addDataSourceProperty("prepareThreshold", "0")
     }
 
     try {
