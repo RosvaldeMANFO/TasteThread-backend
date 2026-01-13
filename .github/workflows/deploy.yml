@@ -64,8 +64,8 @@ jobs:
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
-          service: ${{ vars.REPOSITORY }}-backend
-          region: ${{ vars.REGION }}
+          service: ${{ env.REPOSITORY }}-backend
+          region: ${{ env.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
           flags: |
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
