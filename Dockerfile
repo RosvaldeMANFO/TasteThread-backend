@@ -7,8 +7,7 @@ RUN ./gradlew buildFatJar --no-daemon
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 
-RUN apk add --no-cache curl wget
-
 COPY --from=build /app/build/libs/*.jar ./application.jar
+
 EXPOSE 8080
 CMD ["sh", "-c", "java -Dport=${PORT:-8080} -jar application.jar"]
