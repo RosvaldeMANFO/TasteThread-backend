@@ -4,11 +4,10 @@ COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew buildFatJar --no-daemon
 
-FROM eclipse-temurin:21-jre-alpine
+FROM gradle:7-jdk21
 WORKDIR /app
 
-RUN apk add --no-cache curl wget
-
 COPY --from=build /app/build/libs/*.jar ./application.jar
+
 EXPOSE 8080
-CMD ["sh", "-c", "java -Dport=${PORT:-8080} -jar application.jar"]
+CMD ["java", "-jar", "application.jar"]
