@@ -67,7 +67,11 @@ jobs:
           service: ${{ vars.REPOSITORY }}-backend
           region: ${{ vars.REGION }}
           image: ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/backend:${{ github.sha }}
-          flags: |
+          flags: >
+            --allow-unauthenticated
+            --cpu=2
+            --memory=1Gi
+            --concurrency=10
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
           env_vars: |
             DATABASE_USER=${{ secrets.DATABASE_USER }}
