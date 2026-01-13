@@ -1,2 +1,0 @@
-CREATE TABLE IF NOT EXISTS cooking_instructions (id VARCHAR(255) NOT NULL, description TEXT NOT NULL, recipe_id VARCHAR(255) NOT NULL, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL, CONSTRAINT fk_cooking_instructions_recipe_id__id FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE ON UPDATE RESTRICT);
-ALTER TABLE cooking_instructions ADD CONSTRAINT cooking_instructions_recipe_id_description_unique UNIQUE (recipe_id, description);
