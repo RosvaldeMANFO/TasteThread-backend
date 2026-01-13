@@ -64,6 +64,7 @@ jobs:
           image: ${{ vars.REGION }}-docker.pkg.dev/${{ vars.PROJECT_ID }}/${{ vars.REPOSITORY }}/backend:${{ github.sha }}
           flags: |
             --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }}
+            --allow-unauthenticated --session-affinity
           env_vars: |
             DATABASE_USER=${{ secrets.DATABASE_USER }}
             DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
