@@ -71,4 +71,3 @@ jobs:
             FIREBASE_BUCKET=${{ vars.FIREBASE_BUCKET }}
             EMAIL_ADDRESS=${{ vars.EMAIL_ADDRESS }}
             APP_NAME=${{ vars.APP_NAME }}
-            PORT=${{ vars.PORT }}
