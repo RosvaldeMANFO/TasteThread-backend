@@ -17,7 +17,6 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var name by Recipes.name
     var description by Recipes.description
     var imageUrl by Recipes.imageUrl
-    val instructions by InstructionsEntity.referrersOn(Instructions.recipeId, true)
     var course by Recipes.course
     var dietaryRestriction by Recipes.dietaryRestriction
     var origin by Recipes.origin
@@ -28,6 +27,7 @@ class RecipesEntity(id: EntityID<String>) : Entity<String>(id) {
     var authorId by Recipes.authorId
     var createdAt by Recipes.createdAt
     var updatedAt by Recipes.updatedAt
+    val instructions by InstructionsEntity.referrersOn(Instructions.recipeId, true)
     val ingredients by IngredientsEntity.referrersOn(Ingredients.recipeId, true)
     private val comments by RecipeCommentsEntity.referrersOn(RecipeComments.recipeId, true)
     val likes by RecipeLikesEntity.referrersOn(RecipeLikes.recipeId, true)
