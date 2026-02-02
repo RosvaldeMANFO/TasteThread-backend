@@ -281,6 +281,6 @@ class UserRepositoryImpl(
 
     companion object {
         private const val TOKEN_VALIDITY = 36_000_00
-        private const val REFRESH_TOKEN_VALIDITY = 36_000_00 * 24 * 7
+        private const val REFRESH_TOKEN_VALIDITY = 36_000_00 * 24 * 7 * 4
     }
 }
