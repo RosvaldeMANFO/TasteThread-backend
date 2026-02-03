@@ -10,7 +10,7 @@ object Ingredients : IdTable<String>("ingredients") {
     override val id = varchar("id", 100).entityId()
     val recipeId = varchar("recipe_id", 255).references(Recipes.id, onDelete = ReferenceOption.CASCADE).index()
     val name = varchar("name", 255)
-    val quantity = float("quantity")
+    val quantity = float("quantity").default(0f)
     val unit = varchar("unit", 20).nullable()
     val createdAt = datetime("created_at").defaultExpression(CurrentDateTime)
     val updatedAt = datetime("updated_at").defaultExpression(CurrentDateTime)
