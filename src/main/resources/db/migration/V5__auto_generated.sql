@@ -1,0 +1,1 @@
+ALTER TABLE ingredients ALTER COLUMN quantity TYPE REAL, ALTER COLUMN quantity SET DEFAULT 0.0;
